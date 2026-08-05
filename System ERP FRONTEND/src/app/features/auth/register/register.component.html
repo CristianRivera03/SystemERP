@@ -32,7 +32,23 @@
 
       <div class="cds-form-item">
         <label for="password">Contraseña <span class="cds-required">*</span></label>
-        <input id="password" type="password" formControlName="password" class="cds-text-input" placeholder="Mínimo 6 caracteres" />
+        <div class="password-input-wrapper">
+          <input 
+            id="password" 
+            [type]="showPassword ? 'text' : 'password'" 
+            formControlName="password" 
+            class="cds-text-input" 
+            placeholder="Mínimo 6 caracteres" 
+          />
+          <button 
+            type="button" 
+            class="toggle-password-btn" 
+            (click)="toggleShowPassword()" 
+            [title]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+          >
+            <i class="bx" [ngClass]="showPassword ? 'bx-show' : 'bx-hide'"></i>
+          </button>
+        </div>
       </div>
 
       <div class="form-row">
@@ -55,8 +71,15 @@
 
       <div class="form-row">
         <div class="cds-form-item">
-          <label for="phone">Teléfono</label>
-          <input id="phone" type="text" formControlName="phone" class="cds-text-input" placeholder="+503 1234 5678" />
+          <label for="phone">Teléfono (Solo Números)</label>
+          <input 
+            id="phone" 
+            type="text" 
+            formControlName="phone" 
+            class="cds-text-input" 
+            placeholder="50312345678" 
+            (input)="allowOnlyNumbers($event)"
+          />
         </div>
         <div class="cds-form-item">
           <label for="documentId">Documento Identidad</label>

@@ -37,6 +37,21 @@ export class UserManagementComponent implements OnInit {
   public isEditInfoModalOpen = false;
   public isEditRoleModalOpen = false;
   public isSubmitting = false;
+  public showRegisterPassword = false;
+
+  public toggleShowRegisterPassword(): void {
+    this.showRegisterPassword = !this.showRegisterPassword;
+  }
+
+  public allowOnlyNumbers(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input) {
+      const sanitized = input.value.replace(/[^0-9+]/g, '');
+      if (input.value !== sanitized) {
+        input.value = sanitized;
+      }
+    }
+  }
 
   // Forms
   public registerForm!: FormGroup;

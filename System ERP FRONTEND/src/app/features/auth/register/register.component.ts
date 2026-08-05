@@ -34,6 +34,21 @@ export class RegisterComponent implements OnInit {
   public countries: CatalogDTO[] = [];
   public isLoading = false;
   public errorMessage: string | null = null;
+  public showPassword = false;
+
+  public toggleShowPassword(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  public allowOnlyNumbers(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input) {
+      const sanitized = input.value.replace(/[^0-9+]/g, '');
+      if (input.value !== sanitized) {
+        input.value = sanitized;
+      }
+    }
+  }
 
   ngOnInit(): void {
     this.loadCatalogs();

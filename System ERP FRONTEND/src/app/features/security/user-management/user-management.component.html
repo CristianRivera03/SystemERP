@@ -87,37 +87,43 @@
               {{ user.isActive !== false ? 'Activo' : 'Inactivo' }}
             </span>
           </td>
-          <td class="text-right actions-cell">
-            <button 
-              class="cds-btn-icon" 
-              (click)="openEditNameModal(user)" 
-              title="Modificar Nombre"
-            >
-              <i class="bx bx-edit-alt"></i>
-            </button>
-            <button 
-              class="cds-btn-icon" 
-              (click)="openEditInfoModal(user)" 
-              title="Modificar Información"
-            >
-              <i class="bx bx-id-card"></i>
-            </button>
-            <button 
-              class="cds-btn-icon" 
-              (click)="openEditRoleModal(user)" 
-              title="Modificar Rol"
-            >
-              <i class="bx bx-shield-quarter"></i>
-            </button>
-            <button 
-              class="cds-btn-icon" 
-              [class.btn-danger]="user.isActive !== false"
-              [class.btn-success]="user.isActive === false"
-              (click)="toggleStatus(user)" 
-              [title]="user.isActive !== false ? 'Desactivar Usuario' : 'Activar Usuario'"
-            >
-              <i class="bx" [ngClass]="user.isActive !== false ? 'bx-user-x' : 'bx-user-check'"></i>
-            </button>
+          <td class="text-right">
+            <div class="actions-wrapper">
+              <button 
+                type="button"
+                class="cds-btn-icon" 
+                (click)="openEditNameModal(user)" 
+                title="Modificar Nombre"
+              >
+                <i class="bx bx-edit-alt"></i>
+              </button>
+              <button 
+                type="button"
+                class="cds-btn-icon" 
+                (click)="openEditInfoModal(user)" 
+                title="Modificar Información"
+              >
+                <i class="bx bx-id-card"></i>
+              </button>
+              <button 
+                type="button"
+                class="cds-btn-icon" 
+                (click)="openEditRoleModal(user)" 
+                title="Modificar Rol"
+              >
+                <i class="bx bx-shield-quarter"></i>
+              </button>
+              <button 
+                type="button"
+                class="cds-btn-icon" 
+                [class.btn-danger]="user.isActive !== false"
+                [class.btn-success]="user.isActive === false"
+                (click)="toggleStatus(user)" 
+                [title]="user.isActive !== false ? 'Desactivar Usuario' : 'Activar Usuario'"
+              >
+                <i class="bx" [ngClass]="user.isActive !== false ? 'bx-user-x' : 'bx-user-check'"></i>
+              </button>
+            </div>
           </td>
         </tr>
       </tbody>
@@ -160,7 +166,23 @@
 
         <div class="cds-form-item">
           <label for="regPassword">Contraseña <span class="cds-required">*</span></label>
-          <input id="regPassword" type="password" formControlName="password" class="cds-text-input" placeholder="Mínimo 6 caracteres" />
+          <div class="password-input-wrapper">
+            <input 
+              id="regPassword" 
+              [type]="showRegisterPassword ? 'text' : 'password'" 
+              formControlName="password" 
+              class="cds-text-input" 
+              placeholder="Mínimo 6 caracteres" 
+            />
+            <button 
+              type="button" 
+              class="toggle-password-btn" 
+              (click)="toggleShowRegisterPassword()" 
+              [title]="showRegisterPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            >
+              <i class="bx" [ngClass]="showRegisterPassword ? 'bx-show' : 'bx-hide'"></i>
+            </button>
+          </div>
           <div *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.invalid" class="cds-form-requirement">
             La contraseña requiere al menos 6 caracteres.
           </div>
@@ -185,8 +207,15 @@
 
         <div class="form-row">
           <div class="cds-form-item">
-            <label for="regPhone">Teléfono</label>
-            <input id="regPhone" type="text" formControlName="phone" class="cds-text-input" placeholder="+503 1234 5678" />
+            <label for="regPhone">Teléfono (Solo Números)</label>
+            <input 
+              id="regPhone" 
+              type="text" 
+              formControlName="phone" 
+              class="cds-text-input" 
+              placeholder="50312345678" 
+              (input)="allowOnlyNumbers($event)"
+            />
           </div>
           <div class="cds-form-item">
             <label for="regDocumentId">Documento de Identidad</label>
@@ -249,8 +278,15 @@
 
         <div class="form-row">
           <div class="cds-form-item">
-            <label for="editInfoPhone">Teléfono</label>
-            <input id="editInfoPhone" type="text" formControlName="phone" class="cds-text-input" />
+            <label for="editInfoPhone">Teléfono (Solo Números)</label>
+            <input 
+              id="editInfoPhone" 
+              type="text" 
+              formControlName="phone" 
+              class="cds-text-input" 
+              placeholder="50312345678"
+              (input)="allowOnlyNumbers($event)"
+            />
           </div>
 
           <div class="cds-form-item">

@@ -2,12 +2,12 @@
   <div class="cds-sidenav__title">Módulos ERP</div>
   <nav class="cds-sidenav__items">
     <a 
-      *ngFor="let item of navItems" 
+      *ngFor="let item of navItems()" 
       [routerLink]="item.route" 
       routerLinkActive="active" 
       class="cds-sidenav__item"
     >
-      <i class="bx" [ngClass]="item.icon"></i>
+      <i [ngClass]="item.icon"></i>
       <span class="label">{{ item.label }}</span>
       <span *ngIf="item.badge" class="cds-tag cds-tag--blue mini-badge">{{ item.badge }}</span>
     </a>

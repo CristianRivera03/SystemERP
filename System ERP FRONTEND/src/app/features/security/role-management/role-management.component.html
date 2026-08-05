@@ -32,14 +32,14 @@
       <i class="bx bx-search"></i>
       <input 
         type="text" 
-        [(ngModel)]="searchTerm" 
-        (input)="filterRoles()" 
+        class="cds-text-input" 
         placeholder="Buscar rol por nombre..." 
-        class="cds-text-input"
+        [(ngModel)]="searchTerm" 
+        (input)="filterRoles()"
       />
     </div>
-    <div class="roles-count">
-      Roles Registrados: <strong>{{ filteredRoles.length }}</strong>
+    <div class="roles-stats">
+      <span class="cds-tag cds-tag--purple">Total: {{ filteredRoles.length }} roles</span>
     </div>
   </div>
 

@@ -117,6 +117,58 @@ body {
   }
 }
 
+/* Carbon Icon Buttons */
+.cds-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border-radius: 6px;
+  background-color: transparent;
+  border: 1px solid transparent;
+  color: var(--cds-text-01, #f4f4f4);
+  cursor: pointer;
+  outline: none;
+  transition: all 0.15s cubic-bezier(0, 0, 0.38, 0.9);
+
+  i {
+    font-size: 18px;
+    line-height: 1;
+    margin: 0;
+  }
+
+  &:hover {
+    background-color: var(--cds-layer-02, #393939);
+    color: var(--cds-interactive-01, #0f62fe);
+    border-color: var(--cds-border-subtle, #525252);
+  }
+
+  &:active {
+    background-color: var(--cds-layer-03, #525252);
+  }
+
+  &.btn-danger, &.danger {
+    color: #ff8389;
+    &:hover {
+      background-color: rgba(218, 30, 40, 0.2);
+      color: #ff4d56;
+      border-color: rgba(218, 30, 40, 0.5);
+    }
+  }
+
+  &.btn-success, &.success {
+    color: #42be65;
+    &:hover {
+      background-color: rgba(36, 161, 72, 0.2);
+      color: #6fdc8c;
+      border-color: rgba(36, 161, 72, 0.5);
+    }
+  }
+}
+
+
 /* Carbon Text Inputs & Selects */
 .cds-form-item {
   margin-bottom: 20px;
@@ -165,6 +217,44 @@ body {
     margin-top: 4px;
   }
 }
+
+/* Password Input Wrapper & Toggle Visibility Button */
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+
+  input {
+    padding-right: 42px !important;
+  }
+
+  .toggle-password-btn {
+    position: absolute;
+    right: 8px;
+    background: transparent;
+    border: none;
+    color: var(--cds-text-03, #8d8d8d);
+    cursor: pointer;
+    padding: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: color 0.15s ease;
+
+    i {
+      font-size: 20px;
+      line-height: 1;
+      margin: 0;
+    }
+
+    &:hover {
+      color: var(--cds-interactive-01, #0f62fe);
+    }
+  }
+}
+
 
 /* Carbon Tiles & Cards */
 .cds-tile {

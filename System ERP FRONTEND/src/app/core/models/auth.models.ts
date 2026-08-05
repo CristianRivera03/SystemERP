@@ -14,6 +14,14 @@ export interface RegisterDTO {
   documentId?: string;
 }
 
+export interface ModuleDTO {
+  idModule: number;
+  name: string;
+  frontendPath: string;
+  icon?: string;
+  isActive?: boolean;
+}
+
 export interface SessionDTO {
   idUser: string;
   firstName: string;
@@ -24,4 +32,5 @@ export interface SessionDTO {
   idCountry: number;
   countryName?: string;
   token: string;
+  modules?: ModuleDTO[];
 }

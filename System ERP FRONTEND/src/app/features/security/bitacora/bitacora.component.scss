@@ -1,0 +1,274 @@
+.cds-container {
+  padding: 1.5rem;
+}
+
+.cds-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+
+  &__title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #f4f4f4;
+    margin: 0 0 0.25rem 0;
+  }
+
+  &__description {
+    color: #a8a8a8;
+    margin: 0;
+    font-size: 0.9rem;
+  }
+}
+
+.mini-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cds-toolbar {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+
+  &__search {
+    position: relative;
+    flex: 1;
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #8d8d8d;
+      font-size: 1.2rem;
+    }
+
+    .search-input {
+      width: 100%;
+      padding-left: 2.25rem;
+      background: #262626;
+      border: 1px solid #393939;
+      color: #f4f4f4;
+      border-radius: 4px;
+      height: 40px;
+
+      &:focus {
+        border-color: #0f62fe;
+        outline: none;
+      }
+    }
+  }
+
+  &__filters {
+    .table-filter {
+      background: #262626;
+      border: 1px solid #393939;
+      color: #f4f4f4;
+      border-radius: 4px;
+      height: 40px;
+      padding: 0 1rem;
+      cursor: pointer;
+
+      &:focus {
+        border-color: #0f62fe;
+        outline: none;
+      }
+    }
+  }
+}
+
+.cds-table-container {
+  background: #161616;
+  border: 1px solid #393939;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.cds-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th, td {
+    padding: 0.85rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #262626;
+  }
+
+  th {
+    background: #262626;
+    color: #c6c6c6;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  tbody tr {
+    transition: background 0.2s ease;
+
+    &:hover {
+      background: #222222;
+    }
+
+    &:last-child td {
+      border-bottom: none;
+    }
+  }
+}
+
+.date-cell {
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: #c6c6c6;
+  white-space: nowrap;
+}
+
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .avatar-icon {
+    font-size: 1.25rem;
+    color: #0f62fe;
+  }
+
+  .user-name {
+    font-weight: 500;
+    color: #f4f4f4;
+  }
+}
+
+.table-tag {
+  display: inline-flex;
+  align-items: center;
+  background: #262626;
+  color: #a8a8a8;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-family: monospace;
+}
+
+.details-cell {
+  color: #c6c6c6;
+  font-size: 0.88rem;
+}
+
+.cds-table-footer {
+  padding: 0.75rem 1rem;
+  background: #1f1f1f;
+  color: #8d8d8d;
+  font-size: 0.85rem;
+  border-top: 1px solid #262626;
+}
+
+/* Modal Styles */
+.cds-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+}
+
+.cds-modal {
+  background: #161616;
+  border: 1px solid #393939;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #262626;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #f4f4f4;
+    display: flex;
+    align-items: center;
+  }
+
+  &__close {
+    background: none;
+    border: none;
+    color: #a8a8a8;
+    font-size: 1.5rem;
+    cursor: pointer;
+
+    &:hover {
+      color: #ffffff;
+    }
+  }
+
+  &__body {
+    padding: 1.25rem;
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0.85rem 1.25rem;
+    background: #1f1f1f;
+    border-top: 1px solid #262626;
+  }
+}
+
+.detail-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.detail-group {
+  margin-bottom: 1rem;
+
+  label {
+    display: block;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    color: #8d8d8d;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+
+  p {
+    margin: 0;
+    color: #f4f4f4;
+    font-size: 0.95rem;
+  }
+}
+
+.details-box {
+  background: #262626;
+  border: 1px solid #393939;
+  border-radius: 4px;
+  padding: 0.75rem;
+  color: #e0e0e0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+}
+
+.loader-icon {
+  font-size: 2rem;
+  color: #0f62fe;
+}

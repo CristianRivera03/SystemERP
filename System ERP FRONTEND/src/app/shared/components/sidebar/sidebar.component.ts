@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
+import { ModuleDTO } from '../../../core/models/auth.models';
 
 interface NavItem {
   label: string;
@@ -17,33 +19,83 @@ interface NavItem {
   styleUrls: ['./sidebar.component.scss']
 })
 export class SidebarComponent {
-  public navItems: NavItem[] = [
-    {
-      label: 'Catálogos del Sistema',
-      icon: 'bx-folder-open',
-      route: '/catalogs'
-    },
-    {
-      label: 'Roles y Permisos',
-      icon: 'bx-shield-quarter',
-      route: '/security/roles'
-    },
-    {
-      label: 'Gestión de Usuarios',
-      icon: 'bx-user-pin',
-      route: '/security/users'
-    },
-    {
-      label: 'Inventario (Próximo)',
-      icon: 'bx-package',
-      route: '/inventory',
-      badge: 'Pronto'
-    },
-    {
-      label: 'Ventas y Facturación',
-      icon: 'bx-cart',
-      route: '/sales',
-      badge: 'Pronto'
+  private readonly authService = inject(AuthService);
+
+  // Dynamic Navigation Items computed from Logged-in User's Assigned Modules
+  public navItems = computed<NavItem[]>(() => {
+    const user = this.authService.currentUser();
+    const modules = user?.modules;
+
+    if (!modules) {
+      return [];
     }
-  ];
+
+    return modules
+      .filter(m => m.isActive !== false)
+      .map(m => this.mapModuleToNavItem(m));
+  });
+
+  private mapModuleToNavItem(module: ModuleDTO): NavItem {
+    // Resolve route from DB frontend_path
+    let route = module.frontendPath || '/catalogs';
+    if (route === '/gestion-usuarios') route = '/security/users';
+    if (route === '/roles-permisos') route = '/security/roles';
+    if (route === '/bitacora') route = '/bitacora';
+    if (route === '/dashboard') route = '/catalogs';
+
+    let rawIcon = (module.icon || 'folder').trim().toLowerCase();
+
+    // Map Feather / Lucide / Generic DB icon names to valid Boxicons classes
+    const iconMap: Record<string, string> = {
+      'home': 'bx-home-alt',
+      'users': 'bx-group',
+      'user': 'bx-user-pin',
+      'user-check': 'bx-user-check',
+      'truck': 'bxs-truck',
+      'business': 'bx-briefcase',
+      'proveedores': 'bx-briefcase',
+      'box': 'bx-package',
+      'shopping-cart': 'bx-cart',
+      'shopping-bag': 'bx-shopping-bag',
+      'clipboard': 'bx-receipt',
+      'list': 'bx-list-ul',
+      'file-text': 'bx-file-find',
+      'file': 'bx-file',
+      'layers': 'bx-layer',
+      'tag': 'bx-purchase-tag-alt',
+      'database': 'bx-data',
+      'map-pin': 'bx-map-pin',
+      'move': 'bx-transfer',
+      'file-plus': 'bx-file-blank',
+      'corner-down-left': 'bx-undo',
+      'navigation': 'bx-compass',
+      'shield': 'bx-shield-quarter',
+      'kardex': 'bx-spreadsheet',
+      'almacenes': 'bx-store',
+      'sucursales': 'bx-buildings',
+      'traslados': 'bx-transfer-alt',
+      'devoluciones': 'bx-undo',
+      'bitacora': 'bx-history',
+      'retaceo': 'bx-git-repo-forked',
+      'flota-conductores': 'bx-car'
+    };
+
+    let iconClass = '';
+    if (rawIcon.startsWith('bx ') || rawIcon.startsWith('bxs ') || rawIcon.startsWith('fa ')) {
+      iconClass = rawIcon;
+    } else if (rawIcon.startsWith('bx-') || rawIcon.startsWith('bxs-') || rawIcon.startsWith('bxl-')) {
+      iconClass = `bx ${rawIcon}`;
+    } else if (iconMap[rawIcon]) {
+      const mapped = iconMap[rawIcon];
+      iconClass = mapped.startsWith('bx') ? `bx ${mapped}` : `bx bx-${mapped}`;
+    } else {
+      iconClass = `bx bx-${rawIcon}`;
+    }
+
+    return {
+      label: module.name,
+      icon: iconClass,
+      route: route
+    };
+  }
 }

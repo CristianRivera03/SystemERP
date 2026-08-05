@@ -28,30 +28,27 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px !important;
+  padding: 16px 20px !important;
+  background-color: var(--cds-layer-02, #393939);
+  border-bottom: 1px solid var(--cds-border-subtle, #393939);
 
   .search-box {
     position: relative;
-    width: 340px;
+    width: 380px;
 
     i {
       position: absolute;
       left: 12px;
       top: 50%;
       transform: translateY(-50%);
-      color: #8d8d8d;
+      color: var(--cds-text-03, #8d8d8d);
       font-size: 18px;
     }
 
     input {
-      padding-left: 36px !important;
+      padding-left: 38px !important;
+      height: 40px;
     }
-  }
-
-  .roles-count {
-    font-size: 13px;
-    color: #8d8d8d;
-    strong { color: #f4f4f4; }
   }
 }
 

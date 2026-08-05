@@ -24,8 +24,28 @@ export const routes: Routes = [
         loadComponent: () => import('./features/security/role-management/role-management.component').then((m) => m.RoleManagementComponent)
       },
       {
+        path: 'roles-permisos',
+        loadComponent: () => import('./features/security/role-management/role-management.component').then((m) => m.RoleManagementComponent)
+      },
+      {
         path: 'security/users',
         loadComponent: () => import('./features/security/user-management/user-management.component').then((m) => m.UserManagementComponent)
+      },
+      {
+        path: 'gestion-usuarios',
+        loadComponent: () => import('./features/security/user-management/user-management.component').then((m) => m.UserManagementComponent)
+      },
+      {
+        path: 'bitacora',
+        loadComponent: () => import('./features/security/bitacora/bitacora.component').then((m) => m.BitacoraComponent)
+      },
+      {
+        path: 'security/audit-log',
+        loadComponent: () => import('./features/security/bitacora/bitacora.component').then((m) => m.BitacoraComponent)
+      },
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./features/catalogs/catalogs-dashboard/catalogs-dashboard.component').then((m) => m.CatalogsDashboardComponent)
       },
       {
         path: '',

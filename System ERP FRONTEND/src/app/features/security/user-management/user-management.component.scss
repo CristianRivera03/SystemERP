@@ -85,6 +85,10 @@
     color: var(--cds-text-02, #c6c6c6);
   }
 
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
   tr:hover td {
     background-color: var(--cds-layer-02, #393939);
   }
@@ -92,6 +96,13 @@
   tr.inactive-row {
     opacity: 0.6;
   }
+}
+
+.actions-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
 }
 
 .user-cell {
@@ -142,29 +153,6 @@
 
 .text-right {
   text-align: right !important;
-}
-
-.actions-cell {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-
-  .cds-btn-icon {
-    &.btn-danger {
-      color: var(--cds-support-error, #da1e28);
-      &:hover {
-        background-color: rgba(218, 30, 40, 0.15);
-      }
-    }
-
-    &.btn-success {
-      color: var(--cds-support-success, #24a148);
-      &:hover {
-        background-color: rgba(36, 161, 72, 0.15);
-      }
-    }
-  }
 }
 
 .loading-state, .empty-state {

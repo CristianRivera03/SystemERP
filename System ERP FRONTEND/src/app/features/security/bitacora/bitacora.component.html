@@ -1,0 +1,184 @@
+<div class="cds-container">
+  <header class="cds-page-header">
+    <div class="cds-page-header__left">
+      <span class="cds-tag cds-tag--purple mini-badge mb-2">Seguridad & Auditoría</span>
+      <h1 class="cds-page-header__title">Bitácora del Sistema</h1>
+      <p class="cds-page-header__description">
+        Registro centralizado de auditoría y trazabilidad de acciones realizadas en el ERP
+      </p>
+    </div>
+    <div class="cds-page-header__right">
+      <button class="cds-btn cds-btn--secondary" (click)="loadLogs()" [disabled]="loading()">
+        <i class="bx bx-refresh" [class.bx-spin]="loading()"></i> Actualizar
+      </button>
+    </div>
+  </header>
+
+  <!-- Toolbar & Filters -->
+  <div class="cds-toolbar mb-4">
+    <div class="cds-toolbar__search">
+      <i class="bx bx-search search-icon"></i>
+      <input 
+        type="text" 
+        class="cds-input search-input" 
+        placeholder="Buscar por usuario, acción, tabla o detalle..." 
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)"
+      />
+    </div>
+    <div class="cds-toolbar__filters">
+      <select 
+        class="cds-select table-filter"
+        [ngModel]="selectedTableFilter()"
+        (ngModelChange)="selectedTableFilter.set($event)"
+      >
+        <option value="all">Todas las Tablas ({{ availableTables().length }})</option>
+        <option *ngFor="let table of availableTables()" [value]="table">
+          Tabla: {{ table }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div *ngIf="loading()" class="loading-wrapper py-5 text-center">
+    <i class="bx bx-loader-alt bx-spin loader-icon"></i>
+    <p class="mt-2 text-muted">Cargando registros de auditoría...</p>
+  </div>
+
+  <!-- Audit Table -->
+  <div *ngIf="!loading()" class="cds-table-container">
+    <table class="cds-table">
+      <thead>
+        <tr>
+          <th>Fecha y Hora</th>
+          <th>Usuario</th>
+          <th>Acción</th>
+          <th>Tabla Afectada</th>
+          <th>Detalles de la Operación</th>
+          <th style="width: 80px; text-align: center;">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let log of filteredLogs()">
+          <td class="date-cell">
+            <i class="bx bx-time-five icon-subtle me-1"></i>
+            {{ log.actionDate | date:'dd/MM/yyyy HH:mm:ss' }}
+          </td>
+          <td>
+            <div class="user-cell">
+              <i class="bx bx-user-circle avatar-icon"></i>
+              <span class="user-name">{{ log.userName || 'Sistema / Anónimo' }}</span>
+            </div>
+          </td>
+          <td>
+            <span class="cds-tag" [ngClass]="getBadgeClass(log.action)">
+              <i class="bx" [ngClass]="getActionIcon(log.action)"></i>
+              {{ log.action }}
+            </span>
+          </td>
+          <td>
+            <span class="table-tag">
+              <i class="bx bx-table me-1"></i>
+              {{ log.affectedTable }}
+            </span>
+          </td>
+          <td class="details-cell">
+            <span class="text-truncate d-inline-block" style="max-width: 320px;" [title]="log.details">
+              {{ log.details || 'Sin detalles adicionales' }}
+            </span>
+          </td>
+          <td style="text-align: center;">
+            <div class="actions-wrapper">
+              <button 
+                class="cds-btn-icon" 
+                title="Ver detalle completo"
+                (click)="openDetailsModal(log)"
+              >
+                <i class="bx bx-show"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <tr *ngIf="filteredLogs().length === 0">
+          <td colspan="6" class="text-center py-4 text-muted">
+            <i class="bx bx-info-circle fs-3 d-block mb-1"></i>
+            No se encontraron registros de bitácora para la búsqueda actual.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="cds-table-footer">
+      <span>Mostrando <strong>{{ filteredLogs().length }}</strong> de <strong>{{ logs().length }}</strong> registros guardados</span>
+    </div>
+  </div>
+
+  <!-- Log Detail Modal -->
+  <div *ngIf="selectedLog()" class="cds-modal-overlay" (click)="closeDetailsModal()">
+    <div class="cds-modal" (click)="$event.stopPropagation()">
+      <div class="cds-modal__header">
+        <h3 class="cds-modal__title">
+          <i class="bx bx-history me-2"></i>
+          Detalle del Registro de Auditoría
+        </h3>
+        <button class="cds-modal__close" (click)="closeDetailsModal()">&times;</button>
+      </div>
+
+      <div class="cds-modal__body" *ngIf="selectedLog() as log">
+        <div class="detail-group">
+          <label>ID Log:</label>
+          <p class="font-monospace text-muted">{{ log.idLog }}</p>
+        </div>
+
+        <div class="detail-row">
+          <div class="detail-group">
+            <label>Fecha y Hora (UTC):</label>
+            <p>{{ log.actionDate | date:'dd/MM/yyyy HH:mm:ss' }}</p>
+          </div>
+          <div class="detail-group">
+            <label>Usuario Ejecutor:</label>
+            <p>{{ log.userName || 'Sistema / Sin Autenticar' }}</p>
+          </div>
+        </div>
+
+        <div class="detail-row">
+          <div class="detail-group">
+            <label>Acción:</label>
+            <p>
+              <span class="cds-tag" [ngClass]="getBadgeClass(log.action)">
+                {{ log.action }}
+              </span>
+            </p>
+          </div>
+          <div class="detail-group">
+            <label>Tabla Afectada:</label>
+            <p><code>{{ log.affectedTable }}</code></p>
+          </div>
+        </div>
+
+        <div class="detail-group">
+          <label>ID Registro Afectado:</label>
+          <p class="font-monospace">{{ log.recordId }}</p>
+        </div>
+
+        <div class="detail-group" *ngIf="log.sourceIp">
+          <label>Dirección IP de Origen:</label>
+          <p class="font-monospace">{{ log.sourceIp }}</p>
+        </div>
+
+        <div class="detail-group">
+          <label>Descripción / Detalles Completos:</label>
+          <div class="details-box">
+            {{ log.details || 'Sin información detallada' }}
+          </div>
+        </div>
+      </div>
+
+      <div class="cds-modal__footer">
+        <button class="cds-btn cds-btn--secondary" (click)="closeDetailsModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>

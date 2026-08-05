@@ -23,6 +23,11 @@ export class LoginComponent {
 
   public isLoading = false;
   public errorMessage: string | null = null;
+  public showPassword = false;
+
+  public toggleShowPassword(): void {
+    this.showPassword = !this.showPassword;
+  }
 
   public onSubmit(): void {
     if (this.loginForm.invalid) {
