@@ -23,6 +23,8 @@ namespace SystemERP.IOC
 
             });
 
+            services.AddHttpContextAccessor();
+
             // AutoMapper
             services.AddAutoMapper(cfg => cfg.AddProfile<AutoMapperProfile>());
 
@@ -43,6 +45,7 @@ namespace SystemERP.IOC
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IActionLogService, ActionLogService>();
         }
     }
 }

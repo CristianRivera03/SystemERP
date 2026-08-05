@@ -31,7 +31,10 @@ public class AutoMapperProfile : Profile
         // Session
         CreateMap<User, SessionDTO>()
             .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.IdRoleNavigation != null ? src.IdRoleNavigation.RoleName : null))
-            .ForMember(dest => dest.CountryName, opt => opt.MapFrom(src => src.IdCountryNavigation != null ? src.IdCountryNavigation.CountryName : null));
+            .ForMember(dest => dest.CountryName, opt => opt.MapFrom(src => src.IdCountryNavigation != null ? src.IdCountryNavigation.CountryName : null))
+            .ForMember(dest => dest.Modules, opt => opt.MapFrom(src => (src.IdRoleNavigation != null && src.IdRoleNavigation.IdModules != null) 
+                ? src.IdRoleNavigation.IdModules.Where(m => m.IsActive == null || m.IsActive == true) 
+                : new List<Module>()));
 
         // Module
         CreateMap<Module, ModuleDTO>().ReverseMap();

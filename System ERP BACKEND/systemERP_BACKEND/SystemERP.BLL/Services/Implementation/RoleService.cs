@@ -17,12 +17,14 @@ namespace SystemERP.BLL.Services.Implementation
         private readonly SystemErpDbContext _context;
         private readonly IMapper _mapper;
         private readonly ILogger<RoleService> _logger;
+        private readonly IActionLogService _actionLogService;
 
-        public RoleService(SystemErpDbContext context, IMapper mapper, ILogger<RoleService> logger)
+        public RoleService(SystemErpDbContext context, IMapper mapper, ILogger<RoleService> logger, IActionLogService actionLogService)
         {
             _context = context;
             _mapper = mapper;
             _logger = logger;
+            _actionLogService = actionLogService;
         }
 
         public async Task<List<RoleWithModulesDTO>> GetRolesWithModulesAsync()
@@ -100,6 +102,8 @@ namespace SystemERP.BLL.Services.Implementation
                 _context.Roles.Add(newRole);
                 await _context.SaveChangesAsync();
 
+                await _actionLogService.LogActionAsync(null, "CREAR_ROL", "roles", newRole.IdRole.ToString(), $"Rol de seguridad creado: '{newRole.RoleName}' con {newRole.IdModules.Count} módulos iniciales.");
+
                 return new RoleWithModulesDTO
                 {
                     IdRole = newRole.IdRole,
@@ -144,6 +148,9 @@ namespace SystemERP.BLL.Services.Implementation
                 }
 
                 await _context.SaveChangesAsync();
+
+                await _actionLogService.LogActionAsync(null, "MODIFICAR_PERMISOS", "roles", role.IdRole.ToString(), $"Permisos actualizados para el rol '{role.RoleName}': {role.IdModules.Count} módulos asignados.");
+
                 return true;
             }
             catch (Exception ex)
@@ -162,6 +169,9 @@ namespace SystemERP.BLL.Services.Implementation
 
                 role.DeletedAt = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
+
+                await _actionLogService.LogActionAsync(null, "ELIMINAR_ROL", "roles", idRole.ToString(), $"Rol eliminado del sistema: '{role.RoleName}'");
+
                 return true;
             }
             catch (Exception ex)

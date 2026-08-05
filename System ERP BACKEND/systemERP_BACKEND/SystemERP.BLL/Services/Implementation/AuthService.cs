@@ -17,17 +17,20 @@ namespace SystemERP.BLL.Services.Implementation
         private readonly IMapper _mapper;
         private readonly ILogger<AuthService> _logger;
         private readonly IJwtUtility _jwtUtility;
+        private readonly IActionLogService _actionLogService;
 
         public AuthService(
             IGenericRepository<User> userRepository,
             IMapper mapper,
             ILogger<AuthService> logger,
-            IJwtUtility jwtUtility)
+            IJwtUtility jwtUtility,
+            IActionLogService actionLogService)
         {
             _userRepository = userRepository;
             _mapper = mapper;
             _logger = logger;
             _jwtUtility = jwtUtility;
+            _actionLogService = actionLogService;
         }
 
         public async Task<SessionDTO> Login(LoginDTO loginDto)
@@ -37,6 +40,7 @@ namespace SystemERP.BLL.Services.Implementation
                 var queryUser = _userRepository.Query(u => u.Email == loginDto.Email && (u.IsActive == null || u.IsActive == true) && u.DeletedAt == null);
                 var userFound = await queryUser
                     .Include(u => u.IdRoleNavigation)
+                        .ThenInclude(r => r.IdModules)
                     .Include(u => u.IdCountryNavigation)
                     .FirstOrDefaultAsync();
 
@@ -47,6 +51,8 @@ namespace SystemERP.BLL.Services.Implementation
 
                 var session = _mapper.Map<SessionDTO>(userFound);
                 session.Token = _jwtUtility.GenerarJWT(session);
+
+                await _actionLogService.LogActionAsync(userFound.IdUser, "INICIO_SESION", "users", userFound.IdUser.ToString(), $"Inicio de sesión exitoso de: {userFound.FirstName} {userFound.LastName} ({userFound.Email})");
 
                 return session;
             }
@@ -87,6 +93,7 @@ namespace SystemERP.BLL.Services.Implementation
                 // Cargar relaciones para el DTO de sesión
                 var userWithNav = await _userRepository.Query(u => u.IdUser == createdUser.IdUser)
                     .Include(u => u.IdRoleNavigation)
+                        .ThenInclude(r => r.IdModules)
                     .Include(u => u.IdCountryNavigation)
                     .FirstOrDefaultAsync() ?? createdUser;
 

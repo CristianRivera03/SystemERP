@@ -18,15 +18,18 @@ namespace SystemERP.BLL.Services.Implementation
         private readonly IGenericRepository<User> _userRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<UserService> _logger;
+        private readonly IActionLogService _actionLogService;
 
         public UserService(
             IGenericRepository<User> userRepository,
             IMapper mapper,
-            ILogger<UserService> logger)
+            ILogger<UserService> logger,
+            IActionLogService actionLogService)
         {
             _userRepository = userRepository;
             _mapper = mapper;
             _logger = logger;
+            _actionLogService = actionLogService;
         }
 
         public async Task<List<UserDTO>> GetAll()
@@ -100,6 +103,8 @@ namespace SystemERP.BLL.Services.Implementation
 
                 var userWithNav = await queryCreated.FirstOrDefaultAsync() ?? createdUser;
 
+                await _actionLogService.LogActionAsync(createdUser.IdUser, "REGISTRAR_USUARIO", "users", createdUser.IdUser.ToString(), $"Usuario registrado: {registerDto.FirstName} {registerDto.LastName} ({registerDto.Email})");
+
                 return _mapper.Map<UserDTO>(userWithNav);
             }
             catch (Exception ex)
@@ -123,7 +128,12 @@ namespace SystemERP.BLL.Services.Implementation
                 user.LastName = dto.LastName;
                 user.UpdatedAt = DateTime.UtcNow;
 
-                return await _userRepository.Update(user);
+                var result = await _userRepository.Update(user);
+                if (result)
+                {
+                    await _actionLogService.LogActionAsync(null, "MODIFICAR_NOMBRE", "users", id.ToString(), $"Se modificó el nombre del usuario ({user.Email}) a: {dto.FirstName} {dto.LastName}");
+                }
+                return result;
             }
             catch (Exception ex)
             {
@@ -157,7 +167,12 @@ namespace SystemERP.BLL.Services.Implementation
                 user.IdCountry = dto.IdCountry;
                 user.UpdatedAt = DateTime.UtcNow;
 
-                return await _userRepository.Update(user);
+                var result = await _userRepository.Update(user);
+                if (result)
+                {
+                    await _actionLogService.LogActionAsync(null, "MODIFICAR_INFORMACION", "users", id.ToString(), $"Se modificó la información del usuario ({dto.Email}): Tel={dto.Phone}, Doc={dto.DocumentId}");
+                }
+                return result;
             }
             catch (Exception ex)
             {
@@ -179,7 +194,12 @@ namespace SystemERP.BLL.Services.Implementation
                 user.IdRole = dto.IdRole;
                 user.UpdatedAt = DateTime.UtcNow;
 
-                return await _userRepository.Update(user);
+                var result = await _userRepository.Update(user);
+                if (result)
+                {
+                    await _actionLogService.LogActionAsync(null, "MODIFICAR_ROL", "users", id.ToString(), $"Se modificó el rol del usuario ({user.Email}) al rol ID: {dto.IdRole}");
+                }
+                return result;
             }
             catch (Exception ex)
             {
@@ -201,7 +221,12 @@ namespace SystemERP.BLL.Services.Implementation
                 user.IsActive = !(user.IsActive ?? true);
                 user.UpdatedAt = DateTime.UtcNow;
 
-                return await _userRepository.Update(user);
+                var result = await _userRepository.Update(user);
+                if (result)
+                {
+                    await _actionLogService.LogActionAsync(null, "CAMBIAR_ESTADO", "users", id.ToString(), $"Se cambió el estado del usuario ({user.Email}) a: {(user.IsActive == true ? "Activo" : "Inactivo")}");
+                }
+                return result;
             }
             catch (Exception ex)
             {

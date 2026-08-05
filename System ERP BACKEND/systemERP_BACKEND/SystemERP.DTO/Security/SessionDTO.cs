@@ -13,4 +13,5 @@ public class SessionDTO
     public int IdCountry { get; set; }
     public string? CountryName { get; set; }
     public string Token { get; set; } = null!;
+    public List<ModuleDTO>? Modules { get; set; }
 }
