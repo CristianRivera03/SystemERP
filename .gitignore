@@ -1,0 +1,29 @@
+# Visual Studio & .NET
+.vs/
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.tmp
+*.log
+
+# Node.js & Angular
+node_modules/
+dist/
+.angular/
+.sass-cache/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDEs & OS files
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db

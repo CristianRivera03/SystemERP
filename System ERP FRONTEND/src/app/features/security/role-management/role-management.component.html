@@ -1,0 +1,186 @@
+<div class="roles-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="title-area">
+      <span class="cds-tag cds-tag--purple">Módulo de Seguridad</span>
+      <h1>Administración de Roles y Permisos</h1>
+      <p class="subtitle">Cree roles dinámicos y configure qué módulos del ERP puede acceder cada perfil</p>
+    </div>
+
+    <div class="actions-area">
+      <button class="cds-btn cds-btn--primary" (click)="openCreateRoleModal()">
+        <span>Crear Nuevo Rol</span>
+        <i class="bx bx-shield-plus"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="errorMessage" class="cds-inline-notification cds-inline-notification--error">
+    <i class="bx bx-error-circle"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <div *ngIf="successMessage" class="cds-inline-notification cds-inline-notification--success">
+    <i class="bx bx-check-circle"></i>
+    <span>{{ successMessage }}</span>
+  </div>
+
+  <!-- Toolbar & Search -->
+  <div class="roles-toolbar cds-tile">
+    <div class="search-box">
+      <i class="bx bx-search"></i>
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm" 
+        (input)="filterRoles()" 
+        placeholder="Buscar rol por nombre..." 
+        class="cds-text-input"
+      />
+    </div>
+    <div class="roles-count">
+      Roles Registrados: <strong>{{ filteredRoles.length }}</strong>
+    </div>
+  </div>
+
+  <!-- Roles Card Grid -->
+  <div class="roles-grid" *ngIf="!isLoading">
+    <div *ngFor="let role of filteredRoles" class="role-card cds-tile">
+      <div class="role-card-header">
+        <div class="role-icon">
+          <i class="bx bx-shield-quarter"></i>
+        </div>
+        <div class="role-meta">
+          <h3>{{ role.roleName }}</h3>
+          <span class="role-id">ID Rol: #{{ role.idRole }}</span>
+        </div>
+        <button class="cds-btn-icon danger" (click)="deleteRole(role)" title="Eliminar Rol">
+          <i class="bx bx-trash"></i>
+        </button>
+      </div>
+
+      <div class="role-card-body">
+        <div class="section-title">
+          <span>Permisos Asignados</span>
+          <span class="cds-tag cds-tag--blue">{{ role.modules.length }} módulos</span>
+        </div>
+
+        <div class="assigned-modules">
+          <span *ngFor="let mod of role.modules" class="module-chip">
+            <i class="bx" [ngClass]="mod.icon || 'bx-cube'"></i>
+            {{ mod.name }}
+          </span>
+          <span *ngIf="role.modules.length === 0" class="no-permissions">
+            Sin permisos asignados.
+          </span>
+        </div>
+      </div>
+
+      <div class="role-card-footer">
+        <button class="cds-btn cds-btn--secondary cds-btn--sm edit-btn" (click)="openPermissionsModal(role)">
+          <span>Gestionar Permisos</span>
+          <i class="bx bx-cog"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state cds-tile" *ngIf="isLoading">
+    <i class="bx bx-loader-alt bx-spin"></i>
+    <span>Cargando matriz de roles y permisos desde el backend...</span>
+  </div>
+</div>
+
+<!-- Modal 1: Crear Nuevo Rol -->
+<div class="cds-modal-overlay" *ngIf="isCreateModalOpen">
+  <div class="cds-modal-container">
+    <div class="cds-modal-header">
+      <h3>Crear Nuevo Rol de Sistema</h3>
+      <button class="cds-modal-close" (click)="closeCreateRoleModal()">&times;</button>
+    </div>
+    <div class="cds-modal-body">
+      <div class="cds-form-item">
+        <label for="newRoleName">Nombre del Rol <span class="cds-required">*</span></label>
+        <input 
+          id="newRoleName" 
+          type="text" 
+          [(ngModel)]="newRoleName" 
+          placeholder="Ej: Auditor, Gerente de Ventas" 
+          class="cds-text-input" 
+        />
+      </div>
+
+      <div class="permissions-checklist">
+        <label class="checklist-label">Seleccionar Permisos Iniciales (Opcional):</label>
+        <div class="checkbox-grid">
+          <div 
+            *ngFor="let mod of allModules" 
+            class="checkbox-item" 
+            [class.selected]="isNewModuleSelected(mod.idModule)"
+            (click)="toggleNewModuleSelection(mod.idModule)"
+          >
+            <i class="bx" [ngClass]="isNewModuleSelected(mod.idModule) ? 'bx-checkbox-checked' : 'bx-checkbox'"></i>
+            <span>{{ mod.name }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="cds-modal-footer">
+      <button class="cds-btn cds-btn--secondary" (click)="closeCreateRoleModal()">Cancelar</button>
+      <button class="cds-btn cds-btn--primary" (click)="submitCreateRole()" [disabled]="!newRoleName.trim() || isCreating">
+        <span>{{ isCreating ? 'Guardando...' : 'Crear Rol' }}</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 2: Gestionar / Actualizar Permisos de Rol -->
+<div class="cds-modal-overlay" *ngIf="isPermissionsModalOpen">
+  <div class="cds-modal-container permissions-modal">
+    <div class="cds-modal-header">
+      <div>
+        <h3>Matriz de Permisos para Rol</h3>
+        <p class="role-target-subtitle" *ngIf="selectedRoleForPermissions">
+          Configurando accesos para: <strong>{{ selectedRoleForPermissions.roleName }}</strong>
+        </p>
+      </div>
+      <button class="cds-modal-close" (click)="closePermissionsModal()">&times;</button>
+    </div>
+
+    <div class="cds-modal-body">
+      <p class="modal-instructions">
+        Active o desactive los módulos del ERP que este rol tiene permitido visualizar y operar:
+      </p>
+
+      <div class="modules-toggle-list">
+        <div 
+          *ngFor="let mod of allModules" 
+          class="toggle-row"
+          [class.active-row]="isModuleActiveForRole(mod.idModule)"
+          (click)="togglePermission(mod.idModule)"
+        >
+          <div class="module-info">
+            <i class="bx" [ngClass]="mod.icon || 'bx-cube'"></i>
+            <div class="text">
+              <span class="module-name">{{ mod.name }}</span>
+              <span class="module-path">Ruta: {{ mod.frontendPath }}</span>
+            </div>
+          </div>
+
+          <div class="custom-switch" [class.on]="isModuleActiveForRole(mod.idModule)">
+            <span class="switch-ball"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cds-modal-footer">
+      <button class="cds-btn cds-btn--secondary" (click)="closePermissionsModal()">Cancelar</button>
+      <button class="cds-btn cds-btn--primary" (click)="saveRolePermissions()" [disabled]="isSavingPermissions">
+        <span>{{ isSavingPermissions ? 'Actualizando...' : 'Guardar Permisos' }}</span>
+        <i class="bx bx-save"></i>
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,162 @@
+<div class="catalogs-page">
+  <!-- Header Title Block -->
+  <div class="page-header">
+    <div class="title-area">
+      <span class="cds-tag cds-tag--blue">Módulo Base</span>
+      <h1>Gestión de Catálogos del Sistema</h1>
+      <p class="subtitle">Administre los datos maestro de configuración del ERP</p>
+    </div>
+    
+    <div class="actions-area" *ngIf="isCurrentCatalogEditable()">
+      <button class="cds-btn cds-btn--primary" (click)="openCreateModal()">
+        <span>Agregar Registro</span>
+        <i class="bx bx-plus"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Messages & Notifications -->
+  <div *ngIf="errorMessage" class="cds-inline-notification cds-inline-notification--error">
+    <i class="bx bx-error-circle"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <div *ngIf="successMessage" class="cds-inline-notification cds-inline-notification--success">
+    <i class="bx bx-check-circle"></i>
+    <span>{{ successMessage }}</span>
+  </div>
+
+  <!-- Carbon Tab Navigation Bar -->
+  <div class="cds-tabs">
+    <button 
+      *ngFor="let tab of catalogTabs" 
+      class="cds-tab-btn" 
+      [class.active]="selectedCatalog === tab.type"
+      (click)="selectTab(tab.type)"
+    >
+      {{ tab.label }}
+    </button>
+  </div>
+
+  <!-- Location Special Cascading Section -->
+  <div *ngIf="selectedCatalog === 'Departments'" class="location-cascade-section cds-tile">
+    <h3><i class="bx bx-map"></i> Consulta Jerárquica de Ubicaciones</h3>
+    <p class="cascade-help">Seleccione un departamento para cargar sus municipios y distritos asociados.</p>
+
+    <div class="cascade-grid">
+      <div class="cds-form-item">
+        <label>1. Departamento</label>
+        <select [(ngModel)]="selectedDeptId" (change)="onDepartmentChange()" class="cds-select">
+          <option value="" selected>-- Seleccione Departamento --</option>
+          <option *ngFor="let dept of departments" [value]="dept.id">{{ dept.name }} (ID: {{ dept.id }})</option>
+        </select>
+      </div>
+
+      <div class="cds-form-item">
+        <label>2. Municipio</label>
+        <select [(ngModel)]="selectedMuniId" (change)="onMunicipalityChange()" [disabled]="!selectedDeptId || municipalities.length === 0" class="cds-select">
+          <option value="" selected>-- Seleccione Municipio --</option>
+          <option *ngFor="let muni of municipalities" [value]="muni.id">{{ muni.name }} (ID: {{ muni.id }})</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- District Results -->
+    <div *ngIf="districts.length > 0" class="districts-results">
+      <h4><i class="bx bx-building"></i> Distritos Registrados ({{ districts.length }})</h4>
+      <div class="tags-container">
+        <span *ngFor="let dist of districts" class="cds-tag cds-tag--purple">
+          {{ dist.name }} <small>(Code: {{ dist.id }})</small>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Carbon Data Table Section -->
+  <div class="data-table-container cds-tile" *ngIf="selectedCatalog !== 'Departments'">
+    <div class="table-toolbar">
+      <div class="search-box">
+        <i class="bx bx-search"></i>
+        <input 
+          type="text" 
+          [(ngModel)]="searchTerm" 
+          (input)="filterItems()" 
+          placeholder="Buscar en tabla..." 
+          class="cds-text-input"
+        />
+      </div>
+      <div class="table-count">
+        Registros en catálogo: <strong>{{ filteredItems.length }}</strong>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-responsive">
+      <table class="cds-data-table">
+        <thead>
+          <tr>
+            <th style="width: 120px;">ID</th>
+            <th>Nombre del Registro</th>
+            <th *ngIf="isCurrentCatalogEditable()" style="width: 120px; text-align: right;">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="isLoading">
+            <td [attr.colspan]="isCurrentCatalogEditable() ? 3 : 2" class="table-loading">
+              <i class="bx bx-loader-alt bx-spin"></i> Cargando información del servidor backend...
+            </td>
+          </tr>
+
+          <tr *ngIf="!isLoading && filteredItems.length === 0">
+            <td [attr.colspan]="isCurrentCatalogEditable() ? 3 : 2" class="table-empty">
+              No se encontraron registros en el catálogo actual.
+            </td>
+          </tr>
+
+          <tr *ngFor="let item of filteredItems">
+            <td class="cell-id">#{{ item.id }}</td>
+            <td class="cell-name">{{ item.name }}</td>
+            <td *ngIf="isCurrentCatalogEditable()" class="cell-actions">
+              <button class="cds-btn-icon danger" (click)="deleteItem(item)" title="Eliminar registro">
+                <i class="bx bx-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Dialog de Creación con Carbon Design -->
+<div class="cds-modal-overlay" *ngIf="isModalOpen">
+  <div class="cds-modal-container">
+    <div class="cds-modal-header">
+      <h3>Nuevo Registro en Catálogo</h3>
+      <button class="cds-modal-close" (click)="closeModal()">&times;</button>
+    </div>
+    <div class="cds-modal-body">
+      <p class="modal-info">
+        Ingresa la denominación para el nuevo registro de <strong>{{ selectedCatalog }}</strong>:
+      </p>
+      <div class="cds-form-item">
+        <label for="newItemName">Nombre <span class="cds-required">*</span></label>
+        <input 
+          id="newItemName" 
+          type="text" 
+          [(ngModel)]="newItemName" 
+          placeholder="Ejemplo: Categoría General" 
+          class="cds-text-input" 
+          (keyup.enter)="saveNewItem()"
+          autofocus
+        />
+      </div>
+    </div>
+    <div class="cds-modal-footer">
+      <button class="cds-btn cds-btn--secondary" (click)="closeModal()">Cancelar</button>
+      <button class="cds-btn cds-btn--primary" (click)="saveNewItem()" [disabled]="!newItemName.trim() || isSaving">
+        <span>{{ isSaving ? 'Guardando...' : 'Guardar Registro' }}</span>
+      </button>
+    </div>
+  </div>
+</div>

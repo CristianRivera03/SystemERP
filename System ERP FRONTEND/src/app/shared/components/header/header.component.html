@@ -1,0 +1,25 @@
+<header class="cds-header">
+  <div class="cds-header__left">
+    <button class="cds-header__menu-trigger" aria-label="Toggle Side Navigation">
+      <i class="bx bx-menu"></i>
+    </button>
+    <a class="cds-header__name" href="/">
+      System<strong class="highlight">ERP</strong>
+    </a>
+  </div>
+
+  <div class="cds-header__global">
+    <div class="cds-header__user" *ngIf="user() as u">
+      <div class="user-info">
+        <span class="user-name">{{ u.firstName }} {{ u.lastName }}</span>
+        <span class="user-role" *ngIf="u.roleName">{{ u.roleName }}</span>
+      </div>
+      <div class="avatar">
+        {{ u.firstName.charAt(0) }}{{ u.lastName.charAt(0) }}
+      </div>
+      <button class="cds-btn-icon" (click)="logout()" title="Cerrar Sesión">
+        <i class="bx bx-log-out"></i>
+      </button>
+    </div>
+  </div>
+</header>

@@ -1,0 +1,9 @@
+<Solution>
+  <Project Path="SystemERP.API/SystemERP.API.csproj" />
+  <Project Path="SystemERP.BLL/SystemERP.BLL.csproj" />
+  <Project Path="SystemERP.DAL/SystemERP.DAL.csproj" />
+  <Project Path="SystemERP.DTO/SystemERP.DTO.csproj" />
+  <Project Path="SystemERP.IOC/SystemERP.IOC.csproj" />
+  <Project Path="SystemERP.Model/SystemERP.Model.csproj" />
+  <Project Path="SystemERP.Utility/SystemERP.Utility.csproj" />
+</Solution>

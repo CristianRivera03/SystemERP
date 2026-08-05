@@ -1,0 +1,308 @@
+<div class="user-management-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-title">
+      <h1><i class="bx bx-user-pin"></i> Gestión de Usuarios</h1>
+      <p class="subtitle">Administra los usuarios del sistema, asignación de roles, modificación de datos y estados de cuenta.</p>
+    </div>
+    <button class="cds-btn cds-btn--primary" (click)="openRegisterModal()">
+      <i class="bx bx-user-plus"></i> Registrar Usuario
+    </button>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="successMessage" class="cds-inline-notification cds-inline-notification--success">
+    <i class="bx bx-check-circle"></i>
+    <span>{{ successMessage }}</span>
+  </div>
+
+  <div *ngIf="errorMessage" class="cds-inline-notification cds-inline-notification--error">
+    <i class="bx bx-error-circle"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <!-- Toolbar & Data Table -->
+  <div class="data-table-container cds-tile">
+    <div class="table-toolbar">
+      <div class="search-box">
+        <i class="bx bx-search"></i>
+        <input 
+          type="text" 
+          class="cds-text-input" 
+          placeholder="Buscar por nombre, correo, rol, país o documento..." 
+          [(ngModel)]="searchTerm" 
+          (ngModelChange)="filterUsers()"
+        />
+      </div>
+      <div class="table-stats">
+        <span class="cds-tag cds-tag--blue">Total: {{ filteredUsers.length }} usuarios</span>
+      </div>
+    </div>
+
+    <div *ngIf="isLoading" class="loading-state">
+      <i class="bx bx-loader-alt bx-spin"></i> Cargando usuarios...
+    </div>
+
+    <div *ngIf="!isLoading && filteredUsers.length === 0" class="empty-state">
+      <i class="bx bx-user-x"></i>
+      <p>No se encontraron usuarios registrados.</p>
+    </div>
+
+    <table *ngIf="!isLoading && filteredUsers.length > 0" class="cds-data-table">
+      <thead>
+        <tr>
+          <th>Nombre Completo</th>
+          <th>Correo Electrónico</th>
+          <th>Teléfono / Documento</th>
+          <th>País</th>
+          <th>Rol Asignado</th>
+          <th>Estado</th>
+          <th class="text-right">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of filteredUsers" [class.inactive-row]="!user.isActive">
+          <td>
+            <div class="user-cell">
+              <div class="avatar-sm">
+                {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
+              </div>
+              <span class="user-fullname">{{ user.firstName }} {{ user.lastName }}</span>
+            </div>
+          </td>
+          <td>{{ user.email }}</td>
+          <td>
+            <div class="contact-info">
+              <span *ngIf="user.phone"><i class="bx bx-phone"></i> {{ user.phone }}</span>
+              <span *ngIf="user.documentId" class="doc-id"><i class="bx bx-id-card"></i> {{ user.documentId }}</span>
+              <span *ngIf="!user.phone && !user.documentId" class="text-muted">-</span>
+            </div>
+          </td>
+          <td>{{ user.countryName || '-' }}</td>
+          <td>
+            <span class="cds-tag cds-tag--purple">{{ user.roleName || 'Sin Rol' }}</span>
+          </td>
+          <td>
+            <span class="cds-tag" [ngClass]="user.isActive !== false ? 'cds-tag--green' : 'cds-tag--red'">
+              {{ user.isActive !== false ? 'Activo' : 'Inactivo' }}
+            </span>
+          </td>
+          <td class="text-right actions-cell">
+            <button 
+              class="cds-btn-icon" 
+              (click)="openEditNameModal(user)" 
+              title="Modificar Nombre"
+            >
+              <i class="bx bx-edit-alt"></i>
+            </button>
+            <button 
+              class="cds-btn-icon" 
+              (click)="openEditInfoModal(user)" 
+              title="Modificar Información"
+            >
+              <i class="bx bx-id-card"></i>
+            </button>
+            <button 
+              class="cds-btn-icon" 
+              (click)="openEditRoleModal(user)" 
+              title="Modificar Rol"
+            >
+              <i class="bx bx-shield-quarter"></i>
+            </button>
+            <button 
+              class="cds-btn-icon" 
+              [class.btn-danger]="user.isActive !== false"
+              [class.btn-success]="user.isActive === false"
+              (click)="toggleStatus(user)" 
+              [title]="user.isActive !== false ? 'Desactivar Usuario' : 'Activar Usuario'"
+            >
+              <i class="bx" [ngClass]="user.isActive !== false ? 'bx-user-x' : 'bx-user-check'"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- MODAL 1: REGISTRAR USUARIO -->
+  <div class="cds-modal-overlay" *ngIf="isRegisterModalOpen">
+    <div class="cds-modal-container">
+      <div class="cds-modal-header">
+        <h3><i class="bx bx-user-plus"></i> Registrar Usuario</h3>
+        <button class="cds-btn-icon" (click)="closeRegisterModal()"><i class="bx bx-x"></i></button>
+      </div>
+
+      <form [formGroup]="registerForm" (ngSubmit)="submitRegister()" class="cds-modal-body">
+        <div class="form-row">
+          <div class="cds-form-item">
+            <label for="regFirstName">Nombre <span class="cds-required">*</span></label>
+            <input id="regFirstName" type="text" formControlName="firstName" class="cds-text-input" placeholder="Nombre" />
+            <div *ngIf="registerForm.get('firstName')?.touched && registerForm.get('firstName')?.invalid" class="cds-form-requirement">
+              El nombre es requerido.
+            </div>
+          </div>
+          <div class="cds-form-item">
+            <label for="regLastName">Apellido <span class="cds-required">*</span></label>
+            <input id="regLastName" type="text" formControlName="lastName" class="cds-text-input" placeholder="Apellido" />
+            <div *ngIf="registerForm.get('lastName')?.touched && registerForm.get('lastName')?.invalid" class="cds-form-requirement">
+              El apellido es requerido.
+            </div>
+          </div>
+        </div>
+
+        <div class="cds-form-item">
+          <label for="regEmail">Correo Electrónico <span class="cds-required">*</span></label>
+          <input id="regEmail" type="email" formControlName="email" class="cds-text-input" placeholder="ejemplo@empresa.com" />
+          <div *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.invalid" class="cds-form-requirement">
+            Ingrese un correo electrónico válido.
+          </div>
+        </div>
+
+        <div class="cds-form-item">
+          <label for="regPassword">Contraseña <span class="cds-required">*</span></label>
+          <input id="regPassword" type="password" formControlName="password" class="cds-text-input" placeholder="Mínimo 6 caracteres" />
+          <div *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.invalid" class="cds-form-requirement">
+            La contraseña requiere al menos 6 caracteres.
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="cds-form-item">
+            <label for="regRole">Rol <span class="cds-required">*</span></label>
+            <select id="regRole" formControlName="idRole" class="cds-select">
+              <option value="" disabled selected>Seleccione Rol</option>
+              <option *ngFor="let r of roles" [value]="r.id">{{ r.name }}</option>
+            </select>
+          </div>
+          <div class="cds-form-item">
+            <label for="regCountry">País <span class="cds-required">*</span></label>
+            <select id="regCountry" formControlName="idCountry" class="cds-select">
+              <option value="" disabled selected>Seleccione País</option>
+              <option *ngFor="let c of countries" [value]="c.id">{{ c.name }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="cds-form-item">
+            <label for="regPhone">Teléfono</label>
+            <input id="regPhone" type="text" formControlName="phone" class="cds-text-input" placeholder="+503 1234 5678" />
+          </div>
+          <div class="cds-form-item">
+            <label for="regDocumentId">Documento de Identidad</label>
+            <input id="regDocumentId" type="text" formControlName="documentId" class="cds-text-input" placeholder="DUI / NIT / ID" />
+          </div>
+        </div>
+
+        <div class="cds-modal-footer">
+          <button type="button" class="cds-btn cds-btn--secondary" (click)="closeRegisterModal()">Cancelar</button>
+          <button type="submit" class="cds-btn cds-btn--primary" [disabled]="isSubmitting">
+            <span>{{ isSubmitting ? 'Guardando...' : 'Registrar Usuario' }}</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: MODIFICAR NOMBRE -->
+  <div class="cds-modal-overlay" *ngIf="isEditNameModalOpen">
+    <div class="cds-modal-container sm">
+      <div class="cds-modal-header">
+        <h3><i class="bx bx-edit-alt"></i> Modificar Nombre</h3>
+        <button class="cds-btn-icon" (click)="closeEditNameModal()"><i class="bx bx-x"></i></button>
+      </div>
+
+      <form [formGroup]="editNameForm" (ngSubmit)="submitEditName()" class="cds-modal-body">
+        <div class="cds-form-item">
+          <label for="editFirstName">Nombre <span class="cds-required">*</span></label>
+          <input id="editFirstName" type="text" formControlName="firstName" class="cds-text-input" />
+        </div>
+
+        <div class="cds-form-item">
+          <label for="editLastName">Apellido <span class="cds-required">*</span></label>
+          <input id="editLastName" type="text" formControlName="lastName" class="cds-text-input" />
+        </div>
+
+        <div class="cds-modal-footer">
+          <button type="button" class="cds-btn cds-btn--secondary" (click)="closeEditNameModal()">Cancelar</button>
+          <button type="submit" class="cds-btn cds-btn--primary" [disabled]="isSubmitting">
+            <span>{{ isSubmitting ? 'Guardando...' : 'Guardar Nombre' }}</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 3: MODIFICAR INFORMACION -->
+  <div class="cds-modal-overlay" *ngIf="isEditInfoModalOpen">
+    <div class="cds-modal-container">
+      <div class="cds-modal-header">
+        <h3><i class="bx bx-id-card"></i> Modificar Información</h3>
+        <button class="cds-btn-icon" (click)="closeEditInfoModal()"><i class="bx bx-x"></i></button>
+      </div>
+
+      <form [formGroup]="editInfoForm" (ngSubmit)="submitEditInfo()" class="cds-modal-body">
+        <div class="cds-form-item">
+          <label for="editInfoEmail">Correo Electrónico <span class="cds-required">*</span></label>
+          <input id="editInfoEmail" type="email" formControlName="email" class="cds-text-input" />
+        </div>
+
+        <div class="form-row">
+          <div class="cds-form-item">
+            <label for="editInfoPhone">Teléfono</label>
+            <input id="editInfoPhone" type="text" formControlName="phone" class="cds-text-input" />
+          </div>
+
+          <div class="cds-form-item">
+            <label for="editInfoDoc">Documento de Identidad</label>
+            <input id="editInfoDoc" type="text" formControlName="documentId" class="cds-text-input" />
+          </div>
+        </div>
+
+        <div class="cds-form-item">
+          <label for="editInfoCountry">País <span class="cds-required">*</span></label>
+          <select id="editInfoCountry" formControlName="idCountry" class="cds-select">
+            <option *ngFor="let c of countries" [value]="c.id">{{ c.name }}</option>
+          </select>
+        </div>
+
+        <div class="cds-modal-footer">
+          <button type="button" class="cds-btn cds-btn--secondary" (click)="closeEditInfoModal()">Cancelar</button>
+          <button type="submit" class="cds-btn cds-btn--primary" [disabled]="isSubmitting">
+            <span>{{ isSubmitting ? 'Guardando...' : 'Guardar Información' }}</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 4: MODIFICAR ROLES -->
+  <div class="cds-modal-overlay" *ngIf="isEditRoleModalOpen">
+    <div class="cds-modal-container sm">
+      <div class="cds-modal-header">
+        <h3><i class="bx bx-shield-quarter"></i> Modificar Rol</h3>
+        <button class="cds-btn-icon" (click)="closeEditRoleModal()"><i class="bx bx-x"></i></button>
+      </div>
+
+      <form [formGroup]="editRoleForm" (ngSubmit)="submitEditRole()" class="cds-modal-body">
+        <p class="user-role-target" *ngIf="selectedUser">
+          Usuario: <strong>{{ selectedUser.firstName }} {{ selectedUser.lastName }}</strong>
+        </p>
+
+        <div class="cds-form-item">
+          <label for="editRoleSelect">Rol del Usuario <span class="cds-required">*</span></label>
+          <select id="editRoleSelect" formControlName="idRole" class="cds-select">
+            <option *ngFor="let r of roles" [value]="r.id">{{ r.name }}</option>
+          </select>
+        </div>
+
+        <div class="cds-modal-footer">
+          <button type="button" class="cds-btn cds-btn--secondary" (click)="closeEditRoleModal()">Cancelar</button>
+          <button type="submit" class="cds-btn cds-btn--primary" [disabled]="isSubmitting">
+            <span>{{ isSubmitting ? 'Guardando...' : 'Guardar Rol' }}</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,232 @@
+.catalogs-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .title-area {
+    h1 {
+      font-size: 28px;
+      font-weight: 300;
+      color: #f4f4f4;
+      margin: 8px 0 4px 0;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: #8d8d8d;
+    }
+  }
+}
+
+.cds-inline-notification {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  font-size: 14px;
+
+  &--error {
+    background-color: rgba(218, 30, 40, 0.15);
+    border-left: 4px solid #da1e28;
+    color: #ff8389;
+  }
+
+  &--success {
+    background-color: rgba(36, 161, 72, 0.15);
+    border-left: 4px solid #24a148;
+    color: #6fdc8c;
+  }
+}
+
+/* Carbon Tabs Bar */
+.cds-tabs {
+  display: flex;
+  border-bottom: 1px solid #393939;
+  background-color: #262626;
+  overflow-x: auto;
+
+  .cds-tab-btn {
+    padding: 12px 20px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: #c6c6c6;
+    font-family: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 70ms ease, border-color 70ms ease, color 70ms ease;
+
+    &:hover {
+      background-color: #393939;
+      color: #ffffff;
+    }
+
+    &.active {
+      color: #ffffff;
+      font-weight: 600;
+      border-bottom-color: #0f62fe;
+      background-color: #353535;
+    }
+  }
+}
+
+/* Data Table Container */
+.data-table-container {
+  padding: 0 !important;
+  border-top: none !important;
+
+  .table-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    background-color: #262626;
+    border-bottom: 1px solid #393939;
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      position: relative;
+      width: 320px;
+
+      i {
+        position: absolute;
+        left: 12px;
+        color: #8d8d8d;
+        font-size: 18px;
+      }
+
+      input {
+        padding-left: 36px !important;
+      }
+    }
+
+    .table-count {
+      font-size: 13px;
+      color: #8d8d8d;
+      strong { color: #f4f4f4; }
+    }
+  }
+
+  .table-responsive {
+    overflow-x: auto;
+  }
+
+  .cds-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+
+    thead {
+      background-color: #393939;
+      th {
+        padding: 12px 16px;
+        text-align: left;
+        font-weight: 600;
+        color: #f4f4f4;
+        border-bottom: 1px solid #525252;
+      }
+    }
+
+    tbody {
+      tr {
+        border-bottom: 1px solid #393939;
+        transition: background-color 70ms ease;
+
+        &:hover {
+          background-color: #353535;
+        }
+
+        td {
+          padding: 12px 16px;
+          color: #c6c6c6;
+        }
+
+        .cell-id {
+          font-family: var(--cds-font-mono);
+          color: #8d8d8d;
+        }
+
+        .cell-name {
+          color: #f4f4f4;
+          font-weight: 400;
+        }
+
+        .cell-actions {
+          text-align: right;
+
+          .cds-btn-icon {
+            background: none;
+            border: none;
+            color: #8d8d8d;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px;
+            &:hover.danger { color: #da1e28; }
+          }
+        }
+      }
+
+      .table-loading, .table-empty {
+        text-align: center;
+        padding: 32px;
+        color: #8d8d8d;
+      }
+    }
+  }
+}
+
+/* Cascading Location Section */
+.location-cascade-section {
+  h3 {
+    font-size: 18px;
+    font-weight: 400;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #0f62fe;
+  }
+
+  .cascade-help {
+    font-size: 13px;
+    color: #8d8d8d;
+    margin-bottom: 20px;
+  }
+
+  .cascade-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+
+    @media (max-width: 600px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .districts-results {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid #393939;
+
+    h4 {
+      font-size: 15px;
+      font-weight: 400;
+      margin-bottom: 12px;
+      color: #f4f4f4;
+    }
+
+    .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+  }
+}

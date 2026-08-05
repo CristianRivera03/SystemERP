@@ -1,0 +1,115 @@
+.cds-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+  background-color: #161616;
+  border-bottom: 1px solid #393939;
+  padding: 0 16px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 8000;
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__menu-trigger {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+
+    &:hover {
+      background-color: #393939;
+    }
+  }
+
+  &__name {
+    color: #f4f4f4;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 0.16px;
+
+    .cds-header__prefix {
+      font-weight: 600;
+      color: #0f62fe;
+      margin-right: 4px;
+    }
+
+    .highlight {
+      font-weight: 600;
+      color: #ffffff;
+    }
+  }
+
+  &__global {
+    display: flex;
+    align-items: center;
+  }
+
+  &__user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+
+      .user-name {
+        font-size: 13px;
+        font-weight: 500;
+        color: #f4f4f4;
+      }
+
+      .user-role {
+        font-size: 11px;
+        color: #8d8d8d;
+      }
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: #0f62fe;
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-transform: uppercase;
+    }
+
+    .cds-btn-icon {
+      background: none;
+      border: none;
+      color: #c6c6c6;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 70ms ease-in-out;
+
+      &:hover {
+        color: #da1e28;
+      }
+    }
+  }
+}

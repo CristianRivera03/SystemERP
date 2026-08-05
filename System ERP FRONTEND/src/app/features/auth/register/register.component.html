@@ -1,0 +1,78 @@
+<div class="register-container">
+  <div class="register-card cds-tile">
+    <div class="register-header">
+      <div class="brand">
+        System<strong class="brand-highlight">ERP</strong>
+      </div>
+      <h2>Registro de Usuario</h2>
+      <p class="subtitle">Crea tu cuenta para acceder a la plataforma ERP</p>
+    </div>
+
+    <div *ngIf="errorMessage" class="cds-inline-notification cds-inline-notification--error">
+      <i class="bx bx-error-circle"></i>
+      <span>{{ errorMessage }}</span>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+      <div class="form-row">
+        <div class="cds-form-item">
+          <label for="firstName">Nombre <span class="cds-required">*</span></label>
+          <input id="firstName" type="text" formControlName="firstName" class="cds-text-input" placeholder="Nombre" />
+        </div>
+        <div class="cds-form-item">
+          <label for="lastName">Apellido <span class="cds-required">*</span></label>
+          <input id="lastName" type="text" formControlName="lastName" class="cds-text-input" placeholder="Apellido" />
+        </div>
+      </div>
+
+      <div class="cds-form-item">
+        <label for="email">Correo Electrónico <span class="cds-required">*</span></label>
+        <input id="email" type="email" formControlName="email" class="cds-text-input" placeholder="ejemplo@empresa.com" />
+      </div>
+
+      <div class="cds-form-item">
+        <label for="password">Contraseña <span class="cds-required">*</span></label>
+        <input id="password" type="password" formControlName="password" class="cds-text-input" placeholder="Mínimo 6 caracteres" />
+      </div>
+
+      <div class="form-row">
+        <div class="cds-form-item">
+          <label for="idRole">Rol <span class="cds-required">*</span></label>
+          <select id="idRole" formControlName="idRole" class="cds-select">
+            <option value="" disabled selected>Seleccione Rol</option>
+            <option *ngFor="let r of roles" [value]="r.id">{{ r.name }}</option>
+          </select>
+        </div>
+
+        <div class="cds-form-item">
+          <label for="idCountry">País <span class="cds-required">*</span></label>
+          <select id="idCountry" formControlName="idCountry" class="cds-select">
+            <option value="" disabled selected>Seleccione País</option>
+            <option *ngFor="let c of countries" [value]="c.id">{{ c.name }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="cds-form-item">
+          <label for="phone">Teléfono</label>
+          <input id="phone" type="text" formControlName="phone" class="cds-text-input" placeholder="+503 1234 5678" />
+        </div>
+        <div class="cds-form-item">
+          <label for="documentId">Documento Identidad</label>
+          <input id="documentId" type="text" formControlName="documentId" class="cds-text-input" placeholder="DUI / NIT / ID" />
+        </div>
+      </div>
+
+      <button type="submit" class="cds-btn cds-btn--primary submit-btn" [disabled]="isLoading">
+        <span>{{ isLoading ? 'Registrando...' : 'Crear Cuenta' }}</span>
+        <i class="bx bx-user-plus"></i>
+      </button>
+    </form>
+
+    <div class="register-footer">
+      <span>¿Ya posees una cuenta?</span>
+      <a routerLink="/login" class="cds-btn cds-btn--ghost cds-btn--sm">Iniciar Sesión</a>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,56 @@
+<div class="login-container">
+  <div class="login-card cds-tile">
+    <div class="login-header">
+      <div class="brand">
+        System<strong class="brand-highlight">ERP</strong>
+      </div>
+      <h2>Iniciar Sesión</h2>
+      <p class="subtitle">Acceda al portal de gestión empresarial</p>
+    </div>
+
+    <div *ngIf="errorMessage" class="cds-inline-notification cds-inline-notification--error">
+      <i class="bx bx-error-circle"></i>
+      <span>{{ errorMessage }}</span>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <div class="cds-form-item">
+        <label for="email">Correo Electrónico <span class="cds-required">*</span></label>
+        <input 
+          id="email" 
+          type="email" 
+          formControlName="email" 
+          class="cds-text-input" 
+          placeholder="ejemplo@empresa.com"
+        />
+        <div *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.invalid" class="cds-form-requirement">
+          Ingrese un correo electrónico válido.
+        </div>
+      </div>
+
+      <div class="cds-form-item">
+        <label for="password">Contraseña <span class="cds-required">*</span></label>
+        <input 
+          id="password" 
+          type="password" 
+          formControlName="password" 
+          class="cds-text-input" 
+          placeholder="••••••••"
+        />
+        <div *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid" class="cds-form-requirement">
+          La contraseña es requerida.
+        </div>
+      </div>
+
+      <button type="submit" class="cds-btn cds-btn--primary submit-btn" [disabled]="isLoading">
+        <span>{{ isLoading ? 'Ingresando...' : 'Iniciar Sesión' }}</span>
+        <i class="bx bx-right-arrow-alt"></i>
+      </button>
+    </form>
+
+    <div class="login-footer">
+      <span>¿No tienes una cuenta?</span>
+      <a routerLink="/register" class="cds-btn cds-btn--ghost cds-btn--sm">Registrarse en ERP</a>
+    </div>
+  </div>
+</div>

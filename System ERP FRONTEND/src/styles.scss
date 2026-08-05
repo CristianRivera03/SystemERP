@@ -1,0 +1,277 @@
+/* Carbon Design System Integration for SystemERP */
+
+:root {
+  /* Carbon Color Palette (G90 Enterprise Theme + Carbon Blue Accent) */
+  --cds-background: #161616;
+  --cds-layer-01: #262626;
+  --cds-layer-02: #393939;
+  --cds-layer-03: #525252;
+  --cds-field-01: #262626;
+  --cds-field-02: #393939;
+  
+  --cds-text-01: #f4f4f4;
+  --cds-text-02: #c6c6c6;
+  --cds-text-03: #8d8d8d;
+  --cds-text-placeholder: #6f6f6f;
+  --cds-text-on-color: #ffffff;
+  
+  --cds-interactive-01: #0f62fe; /* Carbon Blue 60 */
+  --cds-interactive-hover: #0043ce;
+  --cds-interactive-active: #002d9c;
+  
+  --cds-support-error: #da1e28;
+  --cds-support-success: #24a148;
+  --cds-support-warning: #f1c21b;
+  --cds-support-info: #0f62fe;
+  
+  --cds-border-subtle: #393939;
+  --cds-border-strong: #6f6f6f;
+  --cds-border-interactive: #0f62fe;
+  
+  --cds-font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --cds-font-mono: 'IBM Plex Mono', monospace;
+}
+
+/* Global Reset & Base Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--cds-font-family);
+  background-color: var(--cds-background);
+  color: var(--cds-text-01);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Carbon Button Styling */
+.cds-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  min-height: 40px;
+  font-family: var(--cds-font-family);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.16px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color 70ms cubic-bezier(0, 0, 0.38, 0.9), border-color 70ms cubic-bezier(0, 0, 0.38, 0.9);
+  text-decoration: none;
+
+  i {
+    font-size: 18px;
+    margin-left: 12px;
+  }
+
+  &--primary {
+    background-color: var(--cds-interactive-01);
+    color: var(--cds-text-on-color);
+
+    &:hover {
+      background-color: var(--cds-interactive-hover);
+    }
+
+    &:active {
+      background-color: var(--cds-interactive-active);
+    }
+  }
+
+  &--secondary {
+    background-color: #393939;
+    color: #ffffff;
+
+    &:hover {
+      background-color: #4c4c4c;
+    }
+  }
+
+  &--ghost {
+    background-color: transparent;
+    color: var(--cds-interactive-01);
+
+    &:hover {
+      background-color: rgba(15, 98, 254, 0.1);
+    }
+  }
+
+  &--danger {
+    background-color: var(--cds-support-error);
+    color: #ffffff;
+
+    &:hover {
+      background-color: #b81921;
+    }
+  }
+
+  &--sm {
+    min-height: 32px;
+    padding: 0 12px;
+    font-size: 12px;
+  }
+}
+
+/* Carbon Text Inputs & Selects */
+.cds-form-item {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+
+  label {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--cds-text-02);
+    margin-bottom: 6px;
+    letter-spacing: 0.32px;
+
+    .cds-required {
+      color: var(--cds-support-error);
+      margin-left: 4px;
+    }
+  }
+
+  .cds-text-input, .cds-select {
+    width: 100%;
+    height: 40px;
+    background-color: var(--cds-field-01);
+    border: none;
+    border-bottom: 1px solid var(--cds-border-strong);
+    color: var(--cds-text-01);
+    padding: 0 16px;
+    font-size: 14px;
+    font-family: var(--cds-font-family);
+    outline: none;
+    transition: border-bottom-color 70ms cubic-bezier(0, 0, 0.38, 0.9);
+
+    &:focus {
+      outline: 2px solid var(--cds-interactive-01);
+      outline-offset: -2px;
+    }
+
+    &::placeholder {
+      color: var(--cds-text-placeholder);
+    }
+  }
+
+  .cds-form-requirement {
+    font-size: 12px;
+    color: var(--cds-support-error);
+    margin-top: 4px;
+  }
+}
+
+/* Carbon Tiles & Cards */
+.cds-tile {
+  background-color: var(--cds-layer-01);
+  padding: 20px;
+  border-top: 1px solid var(--cds-border-subtle);
+  position: relative;
+
+  &--clickable {
+    cursor: pointer;
+    transition: background-color 70ms ease-in-out;
+
+    &:hover {
+      background-color: var(--cds-layer-02);
+    }
+  }
+}
+
+/* Carbon Tags / Badges */
+.cds-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 400;
+  border-radius: 10px;
+
+  &--blue {
+    background-color: rgba(15, 98, 254, 0.2);
+    color: #78a9ff;
+  }
+
+  &--green {
+    background-color: rgba(36, 161, 72, 0.2);
+    color: #6fdc8c;
+  }
+
+  &--red {
+    background-color: rgba(218, 30, 40, 0.2);
+    color: #ff8389;
+  }
+
+  &--purple {
+    background-color: rgba(162, 28, 255, 0.2);
+    color: #d4bbff;
+  }
+}
+
+/* Carbon Modal Dialog Styling */
+.cds-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9000;
+  animation: fadeIn 150ms ease-out;
+}
+
+.cds-modal-container {
+  background-color: var(--cds-layer-01);
+  width: 100%;
+  max-width: 540px;
+  border-top: 3px solid var(--cds-interactive-01);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.5);
+
+  .cds-modal-header {
+    padding: 20px 24px 12px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    h3 {
+      font-size: 20px;
+      font-weight: 400;
+      color: var(--cds-text-01);
+    }
+
+    .cds-modal-close {
+      background: none;
+      border: none;
+      color: var(--cds-text-02);
+      font-size: 24px;
+      cursor: pointer;
+      &:hover { color: var(--cds-text-01); }
+    }
+  }
+
+  .cds-modal-body {
+    padding: 12px 24px 24px 24px;
+  }
+
+  .cds-modal-footer {
+    background-color: var(--cds-layer-02);
+    padding: 16px 24px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+}
+
+/* Carbon Utility Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
