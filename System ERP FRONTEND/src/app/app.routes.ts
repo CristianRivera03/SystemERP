@@ -44,6 +44,18 @@ export const routes: Routes = [
         loadComponent: () => import('./features/security/bitacora/bitacora.component').then((m) => m.BitacoraComponent)
       },
       {
+        path: 'sucursales',
+        loadComponent: () => import('./features/inventory/branches/branches.component').then((m) => m.BranchesComponent)
+      },
+      {
+        path: 'almacenes',
+        loadComponent: () => import('./features/inventory/warehouses/warehouses.component').then((m) => m.WarehousesComponent)
+      },
+      {
+        path: 'inventario',
+        loadComponent: () => import('./features/inventory/inventory-dashboard/inventory-dashboard.component').then((m) => m.InventoryDashboardComponent)
+      },
+      {
         path: 'dashboard',
         loadComponent: () => import('./features/catalogs/catalogs-dashboard/catalogs-dashboard.component').then((m) => m.CatalogsDashboardComponent)
       },

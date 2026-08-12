@@ -1,0 +1,233 @@
+<div class="user-management-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-title">
+      <h1><i class="bx bx-map-pin"></i> Gestión de Sucursales</h1>
+      <p class="subtitle">Administra los puntos de venta, centros de operación y ubicación geográfica de las sucursales.</p>
+    </div>
+    <button class="cds-btn cds-btn--primary" (click)="openCreateModal()">
+      <i class="bx bx-plus"></i> Registrar Sucursal
+    </button>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="successMessage()" class="cds-inline-notification cds-inline-notification--success">
+    <i class="bx bx-check-circle"></i>
+    <span>{{ successMessage() }}</span>
+  </div>
+
+  <div *ngIf="errorMessage()" class="cds-inline-notification cds-inline-notification--error">
+    <i class="bx bx-error-circle"></i>
+    <span>{{ errorMessage() }}</span>
+  </div>
+
+  <!-- Toolbar & Data Table -->
+  <div class="data-table-container cds-tile">
+    <div class="table-toolbar">
+      <div class="search-box">
+        <i class="bx bx-search"></i>
+        <input 
+          type="text" 
+          class="cds-text-input" 
+          placeholder="Buscar por nombre, municipio, departamento, correo o teléfono..." 
+          [(ngModel)]="searchTerm" 
+          (ngModelChange)="applyFilter()" 
+        />
+      </div>
+      <div class="table-stats">
+        <span class="cds-tag cds-tag--blue">Total: {{ filteredBranches().length }} sucursales</span>
+      </div>
+    </div>
+
+    <div *ngIf="isLoading()" class="loading-state">
+      <i class="bx bx-loader-alt bx-spin"></i> Cargando sucursales...
+    </div>
+
+    <div *ngIf="!isLoading() && filteredBranches().length === 0" class="empty-state">
+      <i class="bx bx-map-alt"></i>
+      <p>No se encontraron sucursales registradas.</p>
+    </div>
+
+    <table *ngIf="!isLoading() && filteredBranches().length > 0" class="cds-data-table">
+      <thead>
+        <tr>
+          <th>Sucursal</th>
+          <th>Empresa</th>
+          <th>Contacto</th>
+          <th>Ubicación Geográfica</th>
+          <th>Dirección</th>
+          <th>Estado</th>
+          <th class="text-right">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let branch of filteredBranches()" [class.inactive-row]="!branch.isActive">
+          <td>
+            <div class="branch-cell">
+              <div class="avatar-sm">
+                <i class="bx bx-building-house"></i>
+              </div>
+              <span class="branch-fullname">{{ branch.name }}</span>
+            </div>
+          </td>
+          <td>{{ branch.companyName || 'Tienda Rivera' }}</td>
+          <td>
+            <div class="contact-info">
+              <span *ngIf="branch.phone"><i class="bx bx-phone"></i> {{ branch.phone }}</span>
+              <span *ngIf="branch.email"><i class="bx bx-envelope"></i> {{ branch.email }}</span>
+              <span *ngIf="!branch.phone && !branch.email" class="text-muted">-</span>
+            </div>
+          </td>
+          <td>
+            <div class="location-info">
+              <span *ngIf="branch.departmentName" class="cds-tag cds-tag--teal">
+                <i class="bx bx-map"></i> {{ branch.departmentName }} / {{ branch.municipalityName }} / {{ branch.districtName }}
+              </span>
+              <span *ngIf="!branch.departmentName" class="cds-tag cds-tag--blue">
+                {{ branch.districtName || 'Matriz El Centro' }}
+              </span>
+            </div>
+          </td>
+          <td>{{ branch.addressComplement || 'Barrio El Centro' }}</td>
+          <td>
+            <span class="cds-tag" [ngClass]="branch.isActive !== false ? 'cds-tag--green' : 'cds-tag--red'">
+              {{ branch.isActive !== false ? 'Activo' : 'Inactivo' }}
+            </span>
+          </td>
+          <td class="text-right">
+            <div class="actions-wrapper">
+              <button 
+                type="button"
+                class="cds-btn-icon" 
+                (click)="openEditModal(branch)" 
+                title="Editar Sucursal"
+              >
+                <i class="bx bx-edit-alt"></i>
+              </button>
+              <button 
+                type="button"
+                class="cds-btn-icon" 
+                [class.text-danger]="branch.isActive"
+                [class.text-success]="!branch.isActive"
+                (click)="toggleStatus(branch)" 
+                [title]="branch.isActive ? 'Desactivar Sucursal' : 'Activar Sucursal'"
+              >
+                <i class="bx" [ngClass]="branch.isActive ? 'bx-block' : 'bx-check-circle'"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal Carbon -->
+<div class="cds-modal-overlay" *ngIf="showModal()" (click)="closeModal()">
+  <div class="cds-modal" (click)="$event.stopPropagation()">
+    <div class="cds-modal-header">
+      <h3>
+        <i class="bx" [ngClass]="isEditMode() ? 'bx-edit' : 'bx-plus-circle'"></i>
+        {{ isEditMode() ? 'Editar Sucursal' : 'Registrar Nueva Sucursal' }}
+      </h3>
+      <button class="btn-close" (click)="closeModal()"><i class="bx bx-x"></i></button>
+    </div>
+
+    <div class="cds-modal-content">
+      <div class="form-group">
+        <label class="cds-label">Nombre de la Sucursal <span class="required">*</span></label>
+        <input 
+          type="text" 
+          class="cds-text-input" 
+          placeholder="Ej: Sucursal San Miguel Matriz" 
+          [(ngModel)]="formName" 
+        />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="cds-label">Teléfono</label>
+          <input 
+            type="text" 
+            class="cds-text-input" 
+            placeholder="2600-0000" 
+            [(ngModel)]="formPhone" 
+          />
+        </div>
+        <div class="form-group">
+          <label class="cds-label">Correo Electrónico</label>
+          <input 
+            type="email" 
+            class="cds-text-input" 
+            placeholder="sucursal@tiendarivera.com" 
+            [(ngModel)]="formEmail" 
+          />
+        </div>
+      </div>
+
+      <!-- Cascaded Location Selection -->
+      <div class="location-selection-box">
+        <span class="section-title"><i class="bx bx-map"></i> Ubicación Geográfica (El Salvador)</span>
+        <div class="form-row-3">
+          <div class="form-group">
+            <label class="cds-label">Departamento <span class="required">*</span></label>
+            <select 
+              class="cds-select" 
+              [ngModel]="selectedDepartmentId" 
+              (ngModelChange)="onDepartmentChange($event)"
+            >
+              <option value="">Seleccione Departamento</option>
+              <option *ngFor="let dept of departments()" [value]="dept.id">{{ dept.name }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="cds-label">Municipio <span class="required">*</span></label>
+            <select 
+              class="cds-select" 
+              [ngModel]="selectedMunicipalityId" 
+              (ngModelChange)="onMunicipalityChange($event)"
+              [disabled]="!selectedDepartmentId"
+            >
+              <option value="">Seleccione Municipio</option>
+              <option *ngFor="let muni of municipalities()" [value]="muni.id">{{ muni.name }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="cds-label">Distrito <span class="required">*</span></label>
+            <select 
+              class="cds-select" 
+              [(ngModel)]="selectedDistrictId"
+              [disabled]="!selectedMunicipalityId"
+            >
+              <option value="">Seleccione Distrito</option>
+              <option *ngFor="let dist of districts()" [value]="dist.id">{{ dist.name }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="cds-label">Dirección Complementaria</label>
+        <textarea 
+          class="cds-text-input" 
+          rows="2" 
+          placeholder="Ej: Barrio El Centro, Av. General Gerardo Barrios #12" 
+          [(ngModel)]="formAddress"
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="cds-modal-footer">
+      <button class="cds-btn cds-btn--secondary" (click)="closeModal()">Cancelar</button>
+      <button 
+        class="cds-btn cds-btn--primary" 
+        (click)="saveBranch()" 
+        [disabled]="!formName.trim() || !selectedDistrictId"
+      >
+        <i class="bx bx-save"></i> Guardar Sucursal
+      </button>
+    </div>
+  </div>
+</div>

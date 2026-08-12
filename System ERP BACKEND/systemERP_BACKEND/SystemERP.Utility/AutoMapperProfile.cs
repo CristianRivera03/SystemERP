@@ -21,11 +21,13 @@ public class AutoMapperProfile : Profile
         // User
         CreateMap<User, UserDTO>()
             .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.IdRoleNavigation != null ? src.IdRoleNavigation.RoleName : null))
-            .ForMember(dest => dest.CountryName, opt => opt.MapFrom(src => src.IdCountryNavigation != null ? src.IdCountryNavigation.CountryName : null));
+            .ForMember(dest => dest.CountryName, opt => opt.MapFrom(src => src.IdCountryNavigation != null ? src.IdCountryNavigation.CountryName : null))
+            .ForMember(dest => dest.BranchName, opt => opt.MapFrom(src => src.IdBranchNavigation != null ? src.IdBranchNavigation.Name : null));
 
         CreateMap<UserDTO, User>()
             .ForMember(dest => dest.IdRoleNavigation, opt => opt.Ignore())
             .ForMember(dest => dest.IdCountryNavigation, opt => opt.Ignore())
+            .ForMember(dest => dest.IdBranchNavigation, opt => opt.Ignore())
             .ForMember(dest => dest.ActionLogs, opt => opt.Ignore());
 
         // Session
@@ -123,6 +125,58 @@ public class AutoMapperProfile : Profile
 
         CreateMap<SupplierDTO, Supplier>()
             .ForMember(dest => dest.District, opt => opt.Ignore());
+
+        // Company
+        CreateMap<Company, SystemERP.DTO.Entities.CompanyDTO>()
+            .ForMember(dest => dest.DistrictName, opt => opt.MapFrom(src => src.District != null ? src.District.Name : null));
+
+        CreateMap<SystemERP.DTO.Entities.CompanyDTO, Company>()
+            .ForMember(dest => dest.District, opt => opt.Ignore())
+            .ForMember(dest => dest.Branches, opt => opt.Ignore());
+
+        // Branch
+        CreateMap<Branch, SystemERP.DTO.Entities.BranchDTO>()
+            .ForMember(dest => dest.CompanyName, opt => opt.MapFrom(src => src.IdCompanyNavigation != null ? src.IdCompanyNavigation.BusinessName : null))
+            .ForMember(dest => dest.DistrictName, opt => opt.MapFrom(src => src.District != null ? src.District.Name : null))
+            .ForMember(dest => dest.MunicipalityId, opt => opt.MapFrom(src => src.District != null ? src.District.MunicipalityId : null))
+            .ForMember(dest => dest.MunicipalityName, opt => opt.MapFrom(src => (src.District != null && src.District.Municipality != null) ? src.District.Municipality.Name : null))
+            .ForMember(dest => dest.DepartmentId, opt => opt.MapFrom(src => (src.District != null && src.District.Municipality != null) ? src.District.Municipality.DepartmentId : null))
+            .ForMember(dest => dest.DepartmentName, opt => opt.MapFrom(src => (src.District != null && src.District.Municipality != null && src.District.Municipality.Department != null) ? src.District.Municipality.Department.Name : null));
+
+        CreateMap<SystemERP.DTO.Entities.BranchDTO, Branch>()
+            .ForMember(dest => dest.IdCompanyNavigation, opt => opt.Ignore())
+            .ForMember(dest => dest.District, opt => opt.Ignore())
+            .ForMember(dest => dest.Users, opt => opt.Ignore())
+            .ForMember(dest => dest.Warehouses, opt => opt.Ignore());
+
+        // Warehouse & Location
+        CreateMap<WarehouseCategory, SystemERP.DTO.Inventory.WarehouseCategoryDTO>().ReverseMap();
+
+        CreateMap<Warehouse, SystemERP.DTO.Inventory.WarehouseDTO>()
+            .ForMember(dest => dest.BranchName, opt => opt.MapFrom(src => src.IdBranchNavigation != null ? src.IdBranchNavigation.Name : null))
+            .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.IdWarehouseCategoryNavigation != null ? src.IdWarehouseCategoryNavigation.Name : null));
+
+        CreateMap<SystemERP.DTO.Inventory.WarehouseDTO, Warehouse>()
+            .ForMember(dest => dest.IdBranchNavigation, opt => opt.Ignore())
+            .ForMember(dest => dest.IdWarehouseCategoryNavigation, opt => opt.Ignore())
+            .ForMember(dest => dest.Locations, opt => opt.Ignore());
+
+        CreateMap<Location, SystemERP.DTO.Inventory.LocationDTO>()
+            .ForMember(dest => dest.WarehouseName, opt => opt.MapFrom(src => src.IdWarehouseNavigation != null ? src.IdWarehouseNavigation.Name : null));
+
+        CreateMap<SystemERP.DTO.Inventory.LocationDTO, Location>()
+            .ForMember(dest => dest.IdWarehouseNavigation, opt => opt.Ignore())
+            .ForMember(dest => dest.InventoryStocks, opt => opt.Ignore());
+
+        CreateMap<InventoryStock, SystemERP.DTO.Inventory.InventoryStockDTO>()
+            .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.IdProductNavigation != null ? src.IdProductNavigation.Name : null))
+            .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.IdProductNavigation != null ? src.IdProductNavigation.InternalCode : null))
+            .ForMember(dest => dest.LocationCode, opt => opt.MapFrom(src => src.IdLocationNavigation != null ? src.IdLocationNavigation.Code : null))
+            .ForMember(dest => dest.WarehouseName, opt => opt.MapFrom(src => (src.IdLocationNavigation != null && src.IdLocationNavigation.IdWarehouseNavigation != null) ? src.IdLocationNavigation.IdWarehouseNavigation.Name : null));
+
+        CreateMap<SystemERP.DTO.Inventory.InventoryStockDTO, InventoryStock>()
+            .ForMember(dest => dest.IdProductNavigation, opt => opt.Ignore())
+            .ForMember(dest => dest.IdLocationNavigation, opt => opt.Ignore());
         #endregion
 
         #region Generic Catalogs

@@ -1,0 +1,186 @@
+<div class="user-management-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-title">
+      <h1><i class="bx bx-clipboard"></i> Control de Inventario y Existencias</h1>
+      <p class="subtitle">Monitoreo en tiempo real del stock por producto, bodega y ubicación física.</p>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="successMessage()" class="cds-inline-notification cds-inline-notification--success">
+    <i class="bx bx-check-circle"></i>
+    <span>{{ successMessage() }}</span>
+  </div>
+
+  <div *ngIf="errorMessage()" class="cds-inline-notification cds-inline-notification--error">
+    <i class="bx bx-error-circle"></i>
+    <span>{{ errorMessage() }}</span>
+  </div>
+
+  <!-- KPI Cards Carbon -->
+  <div class="kpi-grid">
+    <div class="kpi-card cds-tile">
+      <div class="kpi-icon bg-blue"><i class="bx bx-package"></i></div>
+      <div class="kpi-content">
+        <span class="kpi-value">{{ totalProducts() }}</span>
+        <span class="kpi-label">Productos Registrados</span>
+      </div>
+    </div>
+    <div class="kpi-card cds-tile">
+      <div class="kpi-icon bg-emerald"><i class="bx bx-cubes"></i></div>
+      <div class="kpi-content">
+        <span class="kpi-value">{{ totalStockUnits() | number:'1.0-2' }}</span>
+        <span class="kpi-label">Unidades Totales</span>
+      </div>
+    </div>
+    <div class="kpi-card cds-tile">
+      <div class="kpi-icon bg-amber"><i class="bx bx-error-alt"></i></div>
+      <div class="kpi-content">
+        <span class="kpi-value">{{ lowStockCount() }}</span>
+        <span class="kpi-label">Alertas Stock Mínimo</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toolbar & Data Table -->
+  <div class="data-table-container cds-tile">
+    <div class="table-toolbar">
+      <div class="search-box">
+        <i class="bx bx-search"></i>
+        <input 
+          type="text" 
+          class="cds-text-input" 
+          placeholder="Buscar por producto, código o ubicación..." 
+          [(ngModel)]="searchTerm" 
+          (ngModelChange)="applyFilter()" 
+        />
+      </div>
+
+      <div class="toolbar-filters">
+        <select class="cds-select select-sm" [(ngModel)]="selectedBranchId" (change)="onFilterChange()">
+          <option value="">Todas las Sucursales</option>
+          <option *ngFor="let b of branches()" [value]="b.idBranch">{{ b.name }}</option>
+        </select>
+
+        <select class="cds-select select-sm" [(ngModel)]="selectedWarehouseId" (change)="onFilterChange()">
+          <option value="">Todos los Almacenes</option>
+          <option *ngFor="let w of warehouses()" [value]="w.idWarehouse">{{ w.name }}</option>
+        </select>
+
+        <span class="cds-tag cds-tag--blue">Total: {{ filteredStocks().length }} registros</span>
+      </div>
+    </div>
+
+    <div *ngIf="isLoading()" class="loading-state">
+      <i class="bx bx-loader-alt bx-spin"></i> Cargando existencias de inventario...
+    </div>
+
+    <div *ngIf="!isLoading() && filteredStocks().length === 0" class="empty-state">
+      <i class="bx bx-package"></i>
+      <p>No se encontraron existencias registradas.</p>
+    </div>
+
+    <table *ngIf="!isLoading() && filteredStocks().length > 0" class="cds-data-table">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Producto</th>
+          <th>Almacén / Bodega</th>
+          <th>Ubicación</th>
+          <th>Cantidad Stock</th>
+          <th>Última Actualización</th>
+          <th class="text-right">Ajustar</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let stock of filteredStocks()">
+          <td>
+            <span class="font-mono text-muted">{{ stock.productCode || 'PROD-001' }}</span>
+          </td>
+          <td>
+            <div class="product-cell">
+              <div class="avatar-sm">
+                <i class="bx bx-box"></i>
+              </div>
+              <span class="product-fullname">{{ stock.productName || 'Producto' }}</span>
+            </div>
+          </td>
+          <td>{{ stock.warehouseName || 'Bodega Principal' }}</td>
+          <td>
+            <span class="cds-tag cds-tag--teal font-mono">
+              <i class="bx bx-map"></i> {{ stock.locationCode || 'A-01-01-01' }}
+            </span>
+          </td>
+          <td>
+            <span class="cds-tag" [ngClass]="stock.quantity <= 10 ? 'cds-tag--red' : 'cds-tag--green'">
+              {{ stock.quantity | number:'1.0-2' }} un.
+            </span>
+          </td>
+          <td>{{ stock.lastUpdated ? (stock.lastUpdated | date:'dd/MM/yyyy HH:mm') : 'Reciente' }}</td>
+          <td class="text-right">
+            <button 
+              type="button"
+              class="cds-btn-icon" 
+              (click)="openAdjustModal(stock)" 
+              title="Ajustar Existencias (Auditado)"
+            >
+              <i class="bx bx-slider-alt"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal Stock Adjustment Carbon -->
+<div class="cds-modal-overlay" *ngIf="showAdjustModal()" (click)="closeAdjustModal()">
+  <div class="cds-modal" (click)="$event.stopPropagation()">
+    <div class="cds-modal-header">
+      <h3>
+        <i class="bx bx-slider-alt"></i> Ajuste Manual de Stock (Auditado)
+      </h3>
+      <button class="btn-close" (click)="closeAdjustModal()"><i class="bx bx-x"></i></button>
+    </div>
+
+    <div class="cds-modal-content" *ngIf="selectedStock()">
+      <div class="info-card-box">
+        <p><strong>Producto:</strong> {{ selectedStock()?.productName }} ({{ selectedStock()?.productCode }})</p>
+        <p><strong>Ubicación:</strong> {{ selectedStock()?.locationCode }} en <em>{{ selectedStock()?.warehouseName }}</em></p>
+        <p><strong>Cantidad Actual:</strong> <span class="cds-tag cds-tag--purple">{{ selectedStock()?.quantity }} un.</span></p>
+      </div>
+
+      <div class="form-group">
+        <label class="cds-label">Nueva Cantidad en Stock <span class="required">*</span></label>
+        <input 
+          type="number" 
+          class="cds-text-input" 
+          step="1" 
+          min="0" 
+          [(ngModel)]="newQuantity" 
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="cds-label">Motivo del Ajuste (Se registrará en la Bitácora)</label>
+        <textarea 
+          class="cds-text-input" 
+          rows="3" 
+          placeholder="Ej: Conteo físico mensual, mermas, reposición de inventario..." 
+          [(ngModel)]="adjustReason"
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="cds-modal-footer">
+      <button class="cds-btn cds-btn--secondary" (click)="closeAdjustModal()">Cancelar</button>
+      <button 
+        class="cds-btn cds-btn--primary" 
+        (click)="saveStockAdjustment()"
+      >
+        <i class="bx bx-check-double"></i> Confirmar Ajuste
+      </button>
+    </div>
+  </div>
+</div>

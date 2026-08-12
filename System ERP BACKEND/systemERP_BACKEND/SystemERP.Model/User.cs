@@ -31,7 +31,11 @@ public partial class User
 
     public DateTime? DeletedAt { get; set; }
 
+    public Guid? IdBranch { get; set; }
+
     public virtual ICollection<ActionLog> ActionLogs { get; set; } = new List<ActionLog>();
+
+    public virtual Branch? IdBranchNavigation { get; set; }
 
     public virtual Country IdCountryNavigation { get; set; } = null!;
 

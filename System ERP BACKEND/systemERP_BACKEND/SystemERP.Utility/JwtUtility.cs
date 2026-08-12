@@ -25,7 +25,8 @@ namespace SystemERP.Utility
         public string GenerarJWT(SessionDTO session)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_jwtSettings.Key);
+            var secretKey = !string.IsNullOrEmpty(_jwtSettings?.Key) ? _jwtSettings.Key : "EstaEsUnaClaveSecretaMuyLargaParaJWT12345!@#";
+            var key = Encoding.ASCII.GetBytes(secretKey);
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, session.IdUser.ToString()),
@@ -38,8 +39,8 @@ namespace SystemERP.Utility
             {
                 Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddHours(8),
-                Issuer = _jwtSettings.Issuer,
-                Audience = _jwtSettings.Audience,
+                Issuer = _jwtSettings?.Issuer ?? "SystemERPAPI",
+                Audience = _jwtSettings?.Audience ?? "SystemERPFrontend",
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
@@ -53,7 +54,8 @@ namespace SystemERP.Utility
         public string GenerarTokenRecuperacion(Guid userId)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_jwtSettings.Key);
+            var secretKey = !string.IsNullOrEmpty(_jwtSettings?.Key) ? _jwtSettings.Key : "EstaEsUnaClaveSecretaMuyLargaParaJWT12345!@#";
+            var key = Encoding.ASCII.GetBytes(secretKey);
             var claims = new List<Claim>
             {
                 new Claim("userId", userId.ToString()),
@@ -64,8 +66,8 @@ namespace SystemERP.Utility
             {
                 Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddMinutes(15),
-                Issuer = _jwtSettings.Issuer,
-                Audience = _jwtSettings.Audience,
+                Issuer = _jwtSettings?.Issuer ?? "SystemERPAPI",
+                Audience = _jwtSettings?.Audience ?? "SystemERPFrontend",
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
@@ -79,7 +81,8 @@ namespace SystemERP.Utility
         public Guid ValidarTokenRecuperacion(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_jwtSettings.Key);
+            var secretKey = !string.IsNullOrEmpty(_jwtSettings?.Key) ? _jwtSettings.Key : "EstaEsUnaClaveSecretaMuyLargaParaJWT12345!@#";
+            var key = Encoding.ASCII.GetBytes(secretKey);
             try
             {
                 tokenHandler.ValidateToken(token, new TokenValidationParameters
@@ -87,9 +90,9 @@ namespace SystemERP.Utility
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ValidateIssuer = true,
-                    ValidIssuer = _jwtSettings.Issuer,
+                    ValidIssuer = _jwtSettings?.Issuer ?? "SystemERPAPI",
                     ValidateAudience = true,
-                    ValidAudience = _jwtSettings.Audience,
+                    ValidAudience = _jwtSettings?.Audience ?? "SystemERPFrontend",
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero
                 }, out SecurityToken validatedToken);

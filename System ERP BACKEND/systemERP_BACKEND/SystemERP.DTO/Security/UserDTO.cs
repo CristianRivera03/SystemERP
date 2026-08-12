@@ -22,6 +22,10 @@ public class UserDTO
 
     public string? DocumentId { get; set; }
 
+    public Guid? IdBranch { get; set; }
+
+    public string? BranchName { get; set; }
+
     public bool? IsActive { get; set; }
 
     public DateTime? CreatedAt { get; set; }

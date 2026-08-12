@@ -6,8 +6,8 @@
   --cds-layer-01: #262626;
   --cds-layer-02: #393939;
   --cds-layer-03: #525252;
-  --cds-field-01: #262626;
-  --cds-field-02: #393939;
+  --cds-field-01: #161616;
+  --cds-field-02: #262626;
   
   --cds-text-01: #f4f4f4;
   --cds-text-02: #c6c6c6;
@@ -25,7 +25,7 @@
   --cds-support-info: #0f62fe;
   
   --cds-border-subtle: #393939;
-  --cds-border-strong: #6f6f6f;
+  --cds-border-strong: #525252;
   --cds-border-interactive: #0f62fe;
   
   --cds-font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -49,46 +49,125 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Global Carbon Inputs, Selects & Textareas Styling */
+input.cds-text-input,
+select.cds-select,
+textarea.cds-text-input,
+.form-group input,
+.form-group select,
+.form-group textarea,
+.location-selection-box select,
+.location-form-box input {
+  width: 100%;
+  min-height: 42px;
+  background-color: #161616 !important;
+  color: #f4f4f4 !important;
+  border: 1px solid #454545 !important;
+  border-bottom: 2px solid #0f62fe !important;
+  border-radius: 6px !important;
+  padding: 8px 14px !important;
+  font-size: 14px !important;
+  font-family: var(--cds-font-family) !important;
+  outline: none !important;
+  transition: all 0.15s ease-in-out !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+
+  &:focus {
+    background-color: #1f1f1f !important;
+    border-color: #0f62fe !important;
+    border-bottom-color: #4589ff !important;
+    box-shadow: 0 0 0 3px rgba(15, 98, 254, 0.25) !important;
+  }
+
+  &::placeholder {
+    color: var(--cds-text-placeholder, #6f6f6f) !important;
+  }
+
+  &:disabled {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+    background-color: #262626 !important;
+  }
+}
+
+/* Custom Styled Select Dropdowns (Dark Theme Arrow) */
+select.cds-select,
+.form-group select,
+.location-selection-box select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='%23c6c6c6'><path d='M12 15l-5-5h10z'/></svg>") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 12px center !important;
+  padding-right: 36px !important;
+  cursor: pointer;
+
+  option {
+    background-color: #262626 !important;
+    color: #f4f4f4 !important;
+    padding: 10px !important;
+  }
+}
+
+textarea.cds-text-input,
+.form-group textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
 /* Carbon Button Styling */
 .cds-btn {
   display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 16px;
-  min-height: 40px;
+  justify-content: center;
+  padding: 0 20px;
+  min-height: 42px;
   font-family: var(--cds-font-family);
   font-size: 14px;
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: 0.16px;
   border: 1px solid transparent;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background-color 70ms cubic-bezier(0, 0, 0.38, 0.9), border-color 70ms cubic-bezier(0, 0, 0.38, 0.9);
+  transition: all 0.15s cubic-bezier(0, 0, 0.38, 0.9);
   text-decoration: none;
+  gap: 8px;
 
   i {
     font-size: 18px;
-    margin-left: 12px;
+    margin: 0;
   }
 
   &--primary {
-    background-color: var(--cds-interactive-01);
-    color: var(--cds-text-on-color);
+    background-color: var(--cds-interactive-01, #0f62fe);
+    color: var(--cds-text-on-color, #ffffff);
 
     &:hover {
-      background-color: var(--cds-interactive-hover);
+      background-color: var(--cds-interactive-hover, #0043ce);
+      box-shadow: 0 4px 12px rgba(15, 98, 254, 0.3);
     }
 
     &:active {
-      background-color: var(--cds-interactive-active);
+      background-color: var(--cds-interactive-active, #002d9c);
+    }
+
+    &:disabled {
+      background-color: #393939;
+      color: #8d8d8d;
+      cursor: not-allowed;
+      box-shadow: none;
     }
   }
 
   &--secondary {
     background-color: #393939;
     color: #ffffff;
+    border: 1px solid #525252;
 
     &:hover {
       background-color: #4c4c4c;
+      border-color: #6f6f6f;
     }
   }
 
@@ -111,9 +190,9 @@ body {
   }
 
   &--sm {
-    min-height: 32px;
-    padding: 0 12px;
-    font-size: 12px;
+    min-height: 34px;
+    padding: 0 14px;
+    font-size: 13px;
   }
 }
 
@@ -122,8 +201,8 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   padding: 0;
   border-radius: 6px;
   background-color: transparent;
@@ -148,113 +227,7 @@ body {
   &:active {
     background-color: var(--cds-layer-03, #525252);
   }
-
-  &.btn-danger, &.danger {
-    color: #ff8389;
-    &:hover {
-      background-color: rgba(218, 30, 40, 0.2);
-      color: #ff4d56;
-      border-color: rgba(218, 30, 40, 0.5);
-    }
-  }
-
-  &.btn-success, &.success {
-    color: #42be65;
-    &:hover {
-      background-color: rgba(36, 161, 72, 0.2);
-      color: #6fdc8c;
-      border-color: rgba(36, 161, 72, 0.5);
-    }
-  }
 }
-
-
-/* Carbon Text Inputs & Selects */
-.cds-form-item {
-  margin-bottom: 20px;
-  display: flex;
-  flex-direction: column;
-
-  label {
-    font-size: 12px;
-    font-weight: 400;
-    color: var(--cds-text-02);
-    margin-bottom: 6px;
-    letter-spacing: 0.32px;
-
-    .cds-required {
-      color: var(--cds-support-error);
-      margin-left: 4px;
-    }
-  }
-
-  .cds-text-input, .cds-select {
-    width: 100%;
-    height: 40px;
-    background-color: var(--cds-field-01);
-    border: none;
-    border-bottom: 1px solid var(--cds-border-strong);
-    color: var(--cds-text-01);
-    padding: 0 16px;
-    font-size: 14px;
-    font-family: var(--cds-font-family);
-    outline: none;
-    transition: border-bottom-color 70ms cubic-bezier(0, 0, 0.38, 0.9);
-
-    &:focus {
-      outline: 2px solid var(--cds-interactive-01);
-      outline-offset: -2px;
-    }
-
-    &::placeholder {
-      color: var(--cds-text-placeholder);
-    }
-  }
-
-  .cds-form-requirement {
-    font-size: 12px;
-    color: var(--cds-support-error);
-    margin-top: 4px;
-  }
-}
-
-/* Password Input Wrapper & Toggle Visibility Button */
-.password-input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-
-  input {
-    padding-right: 42px !important;
-  }
-
-  .toggle-password-btn {
-    position: absolute;
-    right: 8px;
-    background: transparent;
-    border: none;
-    color: var(--cds-text-03, #8d8d8d);
-    cursor: pointer;
-    padding: 6px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-    transition: color 0.15s ease;
-
-    i {
-      font-size: 20px;
-      line-height: 1;
-      margin: 0;
-    }
-
-    &:hover {
-      color: var(--cds-interactive-01, #0f62fe);
-    }
-  }
-}
-
 
 /* Carbon Tiles & Cards */
 .cds-tile {
@@ -277,91 +250,165 @@ body {
 .cds-tag {
   display: inline-flex;
   align-items: center;
-  padding: 2px 8px;
+  gap: 4px;
+  padding: 3px 10px;
   font-size: 12px;
-  font-weight: 400;
-  border-radius: 10px;
+  font-weight: 500;
+  border-radius: 12px;
 
   &--blue {
     background-color: rgba(15, 98, 254, 0.2);
     color: #78a9ff;
+    border: 1px solid rgba(15, 98, 254, 0.3);
   }
 
   &--green {
     background-color: rgba(36, 161, 72, 0.2);
     color: #6fdc8c;
+    border: 1px solid rgba(36, 161, 72, 0.3);
   }
 
   &--red {
     background-color: rgba(218, 30, 40, 0.2);
     color: #ff8389;
+    border: 1px solid rgba(218, 30, 40, 0.3);
   }
 
   &--purple {
     background-color: rgba(162, 28, 255, 0.2);
     color: #d4bbff;
+    border: 1px solid rgba(162, 28, 255, 0.3);
+  }
+
+  &--teal {
+    background-color: rgba(0, 157, 154, 0.2);
+    color: #3ddbd9;
+    border: 1px solid rgba(0, 157, 154, 0.3);
   }
 }
 
-/* Carbon Modal Dialog Styling */
+/* Enhanced Premium Carbon Modal Dialog Styling */
 .cds-modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.65);
+  background-color: rgba(10, 10, 10, 0.75);
+  backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9000;
-  animation: fadeIn 150ms ease-out;
+  animation: modalFadeIn 0.2s cubic-bezier(0, 0, 0.38, 0.9);
+  padding: 20px;
 }
 
-.cds-modal-container {
-  background-color: var(--cds-layer-01);
+.cds-modal, .cds-modal-container {
+  background-color: #222222;
+  border: 1px solid #3d3d3d;
+  border-top: 4px solid var(--cds-interactive-01, #0f62fe);
+  border-radius: 12px;
   width: 100%;
-  max-width: 540px;
-  border-top: 3px solid var(--cds-interactive-01);
-  box-shadow: 0 12px 24px rgba(0,0,0,0.5);
+  max-width: 680px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+  animation: modalSlideUp 0.25s cubic-bezier(0, 0, 0.38, 0.9);
 
   .cds-modal-header {
-    padding: 20px 24px 12px 24px;
+    background-color: #1a1a1a;
+    padding: 18px 24px;
+    border-bottom: 1px solid #333333;
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    align-items: flex-start;
 
     h3 {
-      font-size: 20px;
-      font-weight: 400;
-      color: var(--cds-text-01);
+      font-size: 19px;
+      font-weight: 500;
+      color: #ffffff;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      i {
+        color: var(--cds-interactive-01, #0f62fe);
+        font-size: 22px;
+      }
     }
 
-    .cds-modal-close {
-      background: none;
+    .btn-close, .cds-modal-close {
+      background: transparent;
       border: none;
-      color: var(--cds-text-02);
-      font-size: 24px;
+      color: #8d8d8d;
+      font-size: 22px;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
-      &:hover { color: var(--cds-text-01); }
+      transition: all 0.15s ease;
+
+      &:hover {
+        background-color: #333333;
+        color: #ffffff;
+      }
     }
   }
 
-  .cds-modal-body {
-    padding: 12px 24px 24px 24px;
+  .cds-modal-content, .cds-modal-body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    background-color: #222222;
   }
 
   .cds-modal-footer {
-    background-color: var(--cds-layer-02);
+    background-color: #1a1a1a;
     padding: 16px 24px;
+    border-top: 1px solid #333333;
     display: flex;
+    align-items: center;
     justify-content: flex-end;
     gap: 12px;
   }
 }
 
-/* Carbon Utility Animations */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
+/* Modal Sub-boxes for Grouping (Locations, Info) */
+.location-selection-box,
+.location-form-box,
+.info-card-box,
+.stock-info-box {
+  background-color: #181818 !important;
+  border: 1px solid #353535 !important;
+  border-radius: 8px !important;
+  padding: 16px !important;
+
+  .section-title, .box-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #e0e0e0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+
+    i {
+      color: #0f62fe;
+    }
+  }
+}
+
+/* Modal Animations */
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalSlideUp {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }

@@ -18,7 +18,17 @@ public class ProductDTO
 
     public string Name { get; set; } = null!;
 
-    public string? TaxCode { get; set; }
+    public string? InternalCode { get; set; }
+
+    public string? Barcode { get; set; }
+
+    public string? Description { get; set; }
+
+    public string? ImageUrl { get; set; }
+
+    public bool? IsTaxable { get; set; }
+
+    public decimal? MinStock { get; set; }
 
     public bool? IsActive { get; set; }
 

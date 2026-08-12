@@ -11,6 +11,10 @@ public partial class District
 
     public string Name { get; set; } = null!;
 
+    public virtual ICollection<Branch> Branches { get; set; } = new List<Branch>();
+
+    public virtual ICollection<Company> Companies { get; set; } = new List<Company>();
+
     public virtual ICollection<Customer> Customers { get; set; } = new List<Customer>();
 
     public virtual Municipality Municipality { get; set; } = null!;

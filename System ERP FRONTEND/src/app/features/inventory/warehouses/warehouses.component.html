@@ -1,0 +1,277 @@
+<div class="user-management-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-title">
+      <h1><i class="bx bx-database"></i> Administración de Almacenes y Ubicaciones</h1>
+      <p class="subtitle">Gestiona las bodegas lógicas y la distribución física por pasillos, estantes y posiciones.</p>
+    </div>
+    <button class="cds-btn cds-btn--primary" (click)="openCreateModal()">
+      <i class="bx bx-plus"></i> Registrar Almacén
+    </button>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="successMessage()" class="cds-inline-notification cds-inline-notification--success">
+    <i class="bx bx-check-circle"></i>
+    <span>{{ successMessage() }}</span>
+  </div>
+
+  <div *ngIf="errorMessage()" class="cds-inline-notification cds-inline-notification--error">
+    <i class="bx bx-error-circle"></i>
+    <span>{{ errorMessage() }}</span>
+  </div>
+
+  <!-- Toolbar & Data Table -->
+  <div class="data-table-container cds-tile">
+    <div class="table-toolbar">
+      <div class="search-box">
+        <i class="bx bx-search"></i>
+        <input 
+          type="text" 
+          class="cds-text-input" 
+          placeholder="Buscar por almacén, sucursal o categoría..." 
+          [(ngModel)]="searchTerm" 
+          (ngModelChange)="applyFilter()" 
+        />
+      </div>
+      <div class="table-stats">
+        <span class="cds-tag cds-tag--blue">Total: {{ filteredWarehouses().length }} almacenes</span>
+      </div>
+    </div>
+
+    <div *ngIf="isLoading()" class="loading-state">
+      <i class="bx bx-loader-alt bx-spin"></i> Cargando almacenes...
+    </div>
+
+    <div *ngIf="!isLoading() && filteredWarehouses().length === 0" class="empty-state">
+      <i class="bx bx-box"></i>
+      <p>No se encontraron almacenes registrados.</p>
+    </div>
+
+    <table *ngIf="!isLoading() && filteredWarehouses().length > 0" class="cds-data-table">
+      <thead>
+        <tr>
+          <th>Almacén</th>
+          <th>Sucursal</th>
+          <th>Categoría Lógica</th>
+          <th>Descripción</th>
+          <th>Estado</th>
+          <th class="text-right">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let w of filteredWarehouses()" [class.inactive-row]="!w.isActive">
+          <td>
+            <div class="warehouse-cell">
+              <div class="avatar-sm">
+                <i class="bx bx-store-alt"></i>
+              </div>
+              <span class="warehouse-fullname">{{ w.name }}</span>
+            </div>
+          </td>
+          <td>{{ w.branchName || 'Matriz' }}</td>
+          <td>
+            <span class="cds-tag" [ngClass]="{
+              'cds-tag--blue': w.idWarehouseCategory === 1,
+              'cds-tag--purple': w.idWarehouseCategory === 2,
+              'cds-tag--red': w.idWarehouseCategory === 3,
+              'cds-tag--teal': w.idWarehouseCategory === 4
+            }">
+              {{ w.categoryName || 'Principal' }}
+            </span>
+          </td>
+          <td>{{ w.description || 'Sin descripción' }}</td>
+          <td>
+            <span class="cds-tag" [ngClass]="w.isActive !== false ? 'cds-tag--green' : 'cds-tag--red'">
+              {{ w.isActive !== false ? 'Activo' : 'Inactivo' }}
+            </span>
+          </td>
+          <td class="text-right">
+            <div class="actions-wrapper">
+              <button 
+                type="button"
+                class="cds-btn-icon text-info" 
+                (click)="openLocationsModal(w)" 
+                title="Ubicaciones Físicas (Racks/Estantes)"
+              >
+                <i class="bx bx-grid-alt"></i>
+              </button>
+              <button 
+                type="button"
+                class="cds-btn-icon" 
+                (click)="openEditModal(w)" 
+                title="Editar Almacén"
+              >
+                <i class="bx bx-edit-alt"></i>
+              </button>
+              <button 
+                type="button"
+                class="cds-btn-icon" 
+                [class.text-danger]="w.isActive"
+                [class.text-success]="!w.isActive"
+                (click)="toggleStatus(w)" 
+                [title]="w.isActive ? 'Desactivar Almacén' : 'Activar Almacén'"
+              >
+                <i class="bx" [ngClass]="w.isActive ? 'bx-block' : 'bx-check-circle'"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal Warehouse Carbon -->
+<div class="cds-modal-overlay" *ngIf="showModal()" (click)="closeModal()">
+  <div class="cds-modal" (click)="$event.stopPropagation()">
+    <div class="cds-modal-header">
+      <h3>
+        <i class="bx" [ngClass]="isEditMode() ? 'bx-edit' : 'bx-plus-circle'"></i>
+        {{ isEditMode() ? 'Editar Almacén' : 'Registrar Nuevo Almacén' }}
+      </h3>
+      <button class="btn-close" (click)="closeModal()"><i class="bx bx-x"></i></button>
+    </div>
+
+    <div class="cds-modal-content">
+      <div class="form-group">
+        <label class="cds-label">Nombre del Almacén <span class="required">*</span></label>
+        <input 
+          type="text" 
+          class="cds-text-input" 
+          placeholder="Ej: Bodega Principal Abarrotes" 
+          [(ngModel)]="formName" 
+        />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="cds-label">Sucursal <span class="required">*</span></label>
+          <select class="cds-select" [(ngModel)]="formBranchId">
+            <option *ngFor="let b of branches()" [value]="b.idBranch">{{ b.name }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="cds-label">Categoría Lógica <span class="required">*</span></label>
+          <select class="cds-select" [(ngModel)]="formCategoryId">
+            <option *ngFor="let c of categories()" [value]="c.idWarehouseCategory">{{ c.name }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="cds-label">Descripción / Observaciones</label>
+        <textarea 
+          class="cds-text-input" 
+          rows="3" 
+          placeholder="Detalles sobre los productos almacenados..." 
+          [(ngModel)]="formDescription"
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="cds-modal-footer">
+      <button class="cds-btn cds-btn--secondary" (click)="closeModal()">Cancelar</button>
+      <button 
+        class="cds-btn cds-btn--primary" 
+        (click)="saveWarehouse()" 
+        [disabled]="!formName.trim() || !formBranchId"
+      >
+        <i class="bx bx-save"></i> Guardar Almacén
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Locations Carbon -->
+<div class="cds-modal-overlay" *ngIf="showLocationModal()" (click)="closeLocationModal()">
+  <div class="cds-modal modal-lg" (click)="$event.stopPropagation()">
+    <div class="cds-modal-header">
+      <h3>
+        <i class="bx bx-grid-alt"></i> Ubicaciones Físicas: {{ selectedWarehouse()?.name }}
+      </h3>
+      <button class="btn-close" (click)="closeLocationModal()"><i class="bx bx-x"></i></button>
+    </div>
+
+    <div class="cds-modal-content">
+      <div class="location-form-box">
+        <span class="box-title"><i class="bx bx-plus-circle"></i> Agregar Nueva Ubicación Físicamente</span>
+        
+        <div class="form-row-4">
+          <div class="form-group">
+            <label class="cds-label">Pasillo</label>
+            <input type="text" class="cds-text-input" placeholder="A" [(ngModel)]="locAisle" />
+          </div>
+          <div class="form-group">
+            <label class="cds-label">Rack/Estante</label>
+            <input type="text" class="cds-text-input" placeholder="01" [(ngModel)]="locRack" />
+          </div>
+          <div class="form-group">
+            <label class="cds-label">Nivel</label>
+            <input type="text" class="cds-text-input" placeholder="01" [(ngModel)]="locLevel" />
+          </div>
+          <div class="form-group">
+            <label class="cds-label">Posición</label>
+            <input type="text" class="cds-text-input" placeholder="01" [(ngModel)]="locPosition" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="cds-label">Capacidad de Almacenamiento (Unidades)</label>
+            <input type="number" class="cds-text-input" placeholder="500" [(ngModel)]="locCapacity" />
+          </div>
+          <div class="form-group">
+            <label class="cds-label">Notas / Observaciones</label>
+            <input type="text" class="cds-text-input" placeholder="Ej: Palet de carga pesada" [(ngModel)]="locNotes" />
+          </div>
+        </div>
+
+        <div class="form-actions-right">
+          <button class="cds-btn cds-btn--primary btn-sm" (click)="addLocation()">
+            <i class="bx bx-check"></i> Generar Ubicación
+          </button>
+        </div>
+      </div>
+
+      <div class="locations-table-wrapper">
+        <table class="cds-data-table">
+          <thead>
+            <tr>
+              <th>Código Generado</th>
+              <th>Pasillo</th>
+              <th>Rack</th>
+              <th>Nivel</th>
+              <th>Posición</th>
+              <th>Capacidad</th>
+              <th>Notas</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let loc of locations()">
+              <td>
+                <span class="cds-tag cds-tag--teal font-mono">
+                  <i class="bx bx-qr-scan"></i> {{ loc.code }}
+                </span>
+              </td>
+              <td>{{ loc.aisle || '-' }}</td>
+              <td>{{ loc.rack || '-' }}</td>
+              <td>{{ loc.level || '-' }}</td>
+              <td>{{ loc.position || '-' }}</td>
+              <td>{{ loc.capacity || 500 }} un.</td>
+              <td>{{ loc.notes || '-' }}</td>
+            </tr>
+            <tr *ngIf="locations().length === 0">
+              <td colspan="7" class="text-center text-muted py-4">No hay ubicaciones registradas en este almacén.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="cds-modal-footer">
+      <button class="cds-btn cds-btn--secondary" (click)="closeLocationModal()">Cerrar</button>
+    </div>
+  </div>
+</div>

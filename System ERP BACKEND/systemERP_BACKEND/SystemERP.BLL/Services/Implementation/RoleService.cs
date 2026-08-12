@@ -10,16 +10,18 @@ using SystemERP.DAL.DBContext;
 using SystemERP.DTO.Security;
 using SystemERP.Model;
 
+using SystemERP.DAL.DBContext;
+
 namespace SystemERP.BLL.Services.Implementation
 {
     public class RoleService : IRoleService
     {
-        private readonly SystemErpDbContext _context;
+        private readonly SystemERP.DAL.DBContext.SystemErpDbContext _context;
         private readonly IMapper _mapper;
         private readonly ILogger<RoleService> _logger;
         private readonly IActionLogService _actionLogService;
 
-        public RoleService(SystemErpDbContext context, IMapper mapper, ILogger<RoleService> logger, IActionLogService actionLogService)
+        public RoleService(SystemERP.DAL.DBContext.SystemErpDbContext context, IMapper mapper, ILogger<RoleService> logger, IActionLogService actionLogService)
         {
             _context = context;
             _mapper = mapper;

@@ -34,3 +34,9 @@ export interface SessionDTO {
   token: string;
   modules?: ModuleDTO[];
 }
+
+export interface ApiResponse<T> {
+  status: boolean;
+  value: T;
+  msg?: string;
+}

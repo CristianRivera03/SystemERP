@@ -38,9 +38,6 @@ export class SidebarComponent {
   private mapModuleToNavItem(module: ModuleDTO): NavItem {
     // Resolve route from DB frontend_path
     let route = module.frontendPath || '/catalogs';
-    if (route === '/gestion-usuarios') route = '/security/users';
-    if (route === '/roles-permisos') route = '/security/roles';
-    if (route === '/bitacora') route = '/bitacora';
     if (route === '/dashboard') route = '/catalogs';
 
     let rawIcon = (module.icon || 'folder').trim().toLowerCase();
