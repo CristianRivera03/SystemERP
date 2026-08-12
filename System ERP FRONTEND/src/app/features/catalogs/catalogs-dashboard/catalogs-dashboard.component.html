@@ -31,8 +31,8 @@
     <button 
       *ngFor="let tab of catalogTabs" 
       class="cds-tab-btn" 
-      [class.active]="selectedCatalog === tab.type"
-      (click)="selectTab(tab.type)"
+      [class.active]="selectedCatalog === tab.key"
+      (click)="selectTab(tab.key)"
     >
       {{ tab.label }}
     </button>

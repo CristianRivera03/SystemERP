@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CatalogService } from '../../../core/services/catalog.service';
-import { CatalogDTO, CatalogType } from '../../../core/models/catalog.models';
+import { CatalogDTO } from '../../../core/models/catalog.models';
 
 @Component({
   selector: 'app-catalogs-dashboard',
@@ -12,56 +12,57 @@ import { CatalogDTO, CatalogType } from '../../../core/models/catalog.models';
   styleUrls: ['./catalogs-dashboard.component.scss']
 })
 export class CatalogsDashboardComponent implements OnInit {
-  private readonly catalogService = inject(CatalogService);
+  private catalogService = inject(CatalogService);
 
-  public selectedCatalog: CatalogType = 'Categories';
+  public selectedCatalog: string = 'Categories';
   public items: CatalogDTO<any>[] = [];
   public filteredItems: CatalogDTO<any>[] = [];
-  public searchTerm = '';
-  public isLoading = false;
+  public searchTerm: string = '';
+  public isLoading: boolean = false;
   public errorMessage: string | null = null;
   public successMessage: string | null = null;
 
-  // Cascading Location Catalog States
+  // Modals / Actions
+  public isModalOpen: boolean = false;
+  public newItemName: string = '';
+  public isSaving: boolean = false;
+
+  // Location Selector Helper State (For Departments, Municipalities, Districts)
   public departments: CatalogDTO<string>[] = [];
   public municipalities: CatalogDTO<string>[] = [];
   public districts: CatalogDTO<string>[] = [];
-  public selectedDeptId = '';
-  public selectedMuniId = '';
+  public selectedDeptId: string = '';
+  public selectedMuniId: string = '';
 
-  // Modal State for Creation
-  public isModalOpen = false;
-  public newItemName = '';
-  public isSaving = false;
-
-  public catalogTabs: { type: CatalogType; label: string; editable: boolean }[] = [
-    { type: 'Categories', label: 'Categorías', editable: true },
-    { type: 'ProductTypes', label: 'Tipos de Producto', editable: true },
-    { type: 'UnitMeasures', label: 'Unidades de Medida', editable: true },
-    { type: 'Presentations', label: 'Presentaciones', editable: true },
-    { type: 'Departments', label: 'Ubicaciones (Deptos/Munis/Distritos)', editable: false },
-    { type: 'Roles', label: 'Roles', editable: false },
-    { type: 'Countries', label: 'Países', editable: false }
+  public catalogTabs = [
+    { key: 'Categories', label: 'Categorías', icon: 'folder' },
+    { key: 'ProductTypes', label: 'Tipos de Producto', icon: 'tag' },
+    { key: 'UnitMeasures', label: 'Unidades de Medida', icon: 'bar-chart-2' },
+    { key: 'Presentations', label: 'Presentaciones', icon: 'package' },
+    { key: 'Roles', label: 'Roles de Sistema', icon: 'shield' },
+    { key: 'Countries', label: 'Países', icon: 'globe' },
+    { key: 'Departments', label: 'Ubicaciones (Deptos/Mun)', icon: 'map-pin' }
   ];
 
   ngOnInit(): void {
     this.loadCatalog(this.selectedCatalog);
   }
 
-  public selectTab(type: CatalogType): void {
-    this.selectedCatalog = type;
+  public isCurrentCatalogEditable(): boolean {
+    return ['Categories', 'ProductTypes', 'UnitMeasures', 'Presentations'].includes(this.selectedCatalog);
+  }
+
+  public selectTab(tabKey: string): void {
+    this.selectedCatalog = tabKey;
     this.searchTerm = '';
     this.errorMessage = null;
     this.successMessage = null;
-    this.loadCatalog(type);
+    this.loadCatalog(tabKey);
   }
 
-  public loadCatalog(type: CatalogType): void {
+  public loadCatalog(key: string): void {
     this.isLoading = true;
-    this.items = [];
-    this.filteredItems = [];
-
-    switch (type) {
+    switch (key) {
       case 'Categories':
         this.catalogService.getCategories().subscribe({
           next: (res) => this.handleSuccess(res.value),
@@ -76,7 +77,13 @@ export class CatalogsDashboardComponent implements OnInit {
         break;
       case 'UnitMeasures':
         this.catalogService.getUnitMeasures().subscribe({
-          next: (res) => this.handleSuccess(res.value),
+          next: (res) => {
+            const mapped: CatalogDTO<number>[] = (res.value || []).map(u => ({
+              id: u.idUnitMeasure,
+              name: `${u.name || u.description}${u.type ? ' (' + u.type + ')' : ''}`
+            }));
+            this.handleSuccess(mapped);
+          },
           error: (err) => this.handleError(err)
         });
         break;
@@ -187,6 +194,27 @@ export class CatalogsDashboardComponent implements OnInit {
     this.isSaving = true;
     const dto: CatalogDTO = { id: 0, name: this.newItemName.trim() };
 
+    if (this.selectedCatalog === 'UnitMeasures') {
+      this.catalogService.createUnitMeasure({ idUnitMeasure: 0, description: dto.name, name: dto.name }).subscribe({
+        next: (res) => {
+          this.isSaving = false;
+          this.closeModal();
+          if (res.status) {
+            this.successMessage = `Registro "${this.newItemName}" creado exitosamente.`;
+            this.loadCatalog(this.selectedCatalog);
+          } else {
+            this.errorMessage = res.msg || 'No se pudo guardar el registro.';
+          }
+        },
+        error: (err) => {
+          this.isSaving = false;
+          this.closeModal();
+          this.errorMessage = err.error?.msg || 'Error al guardar el nuevo elemento.';
+        }
+      });
+      return;
+    }
+
     let request$;
     switch (this.selectedCatalog) {
       case 'Categories':
@@ -195,13 +223,11 @@ export class CatalogsDashboardComponent implements OnInit {
       case 'ProductTypes':
         request$ = this.catalogService.createProductType(dto);
         break;
-      case 'UnitMeasures':
-        request$ = this.catalogService.createUnitMeasure(dto);
-        break;
       case 'Presentations':
         request$ = this.catalogService.createPresentation(dto);
         break;
       default:
+        this.isSaving = false;
         return;
     }
 
@@ -224,49 +250,42 @@ export class CatalogsDashboardComponent implements OnInit {
     });
   }
 
-  // Delete Action Handlers
   public deleteItem(item: CatalogDTO<any>): void {
     if (!confirm(`¿Está seguro de eliminar "${item.name}"?`)) return;
 
-    this.isLoading = true;
-    let delete$;
+    let request$;
+    const id = Number(item.id);
 
     switch (this.selectedCatalog) {
       case 'Categories':
-        delete$ = this.catalogService.deleteCategory(item.id);
+        request$ = this.catalogService.deleteCategory(id);
         break;
       case 'ProductTypes':
-        delete$ = this.catalogService.deleteProductType(item.id);
+        request$ = this.catalogService.deleteProductType(id);
         break;
       case 'UnitMeasures':
-        delete$ = this.catalogService.deleteUnitMeasure(item.id);
+        request$ = this.catalogService.deleteUnitMeasure(id);
         break;
       case 'Presentations':
-        delete$ = this.catalogService.deletePresentation(item.id);
+        request$ = this.catalogService.deletePresentation(id);
         break;
       default:
+        alert('Este catálogo es de solo lectura.');
         return;
     }
 
-    delete$.subscribe({
+    request$.subscribe({
       next: (res) => {
         if (res.status) {
-          this.successMessage = `Elemento "${item.name}" eliminado correctamente.`;
+          this.successMessage = `Elemento eliminado correctamente.`;
           this.loadCatalog(this.selectedCatalog);
         } else {
-          this.isLoading = false;
-          this.errorMessage = res.msg || 'No se pudo eliminar el registro.';
+          this.errorMessage = res.msg || 'No se pudo eliminar el elemento.';
         }
       },
       error: (err) => {
-        this.isLoading = false;
-        this.errorMessage = err.error?.msg || 'Error al intentar eliminar el registro.';
+        this.errorMessage = err.error?.msg || 'Error al intentar eliminar el elemento.';
       }
     });
-  }
-
-  public isCurrentCatalogEditable(): boolean {
-    const tab = this.catalogTabs.find((t) => t.type === this.selectedCatalog);
-    return tab ? tab.editable : false;
   }
 }

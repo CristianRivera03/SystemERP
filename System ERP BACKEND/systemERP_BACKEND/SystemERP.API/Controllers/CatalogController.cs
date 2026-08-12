@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using SystemERP.API.Utility;
 using SystemERP.BLL.Services.Contract;
 using SystemERP.DTO.Catalog;
+using SystemERP.DTO.Products;
 
 namespace SystemERP.API.Controllers
 {
@@ -63,6 +64,20 @@ namespace SystemERP.API.Controllers
             }
         }
 
+        [HttpGet("SubCategories")]
+        public async Task<IActionResult> GetSubCategories([FromQuery] int? categoryId = null)
+        {
+            try
+            {
+                var result = await _catalogService.GetSubCategoriesAsync(categoryId);
+                return Ok(new Response<List<SubCategoryDTO>> { status = true, value = result });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new Response<List<SubCategoryDTO>> { status = false, msg = ex.Message });
+            }
+        }
+
         [HttpGet("ProductTypes")]
         public async Task<IActionResult> GetProductTypes()
         {
@@ -83,11 +98,11 @@ namespace SystemERP.API.Controllers
             try
             {
                 var result = await _catalogService.GetUnitMeasuresAsync();
-                return Ok(new Response<List<CatalogDTO>> { status = true, value = result });
+                return Ok(new Response<List<UnitMeasureDTO>> { status = true, value = result });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new Response<List<CatalogDTO>> { status = false, msg = ex.Message });
+                return StatusCode(500, new Response<List<UnitMeasureDTO>> { status = false, msg = ex.Message });
             }
         }
 
@@ -152,16 +167,16 @@ namespace SystemERP.API.Controllers
         #region Admin CRUD Endpoints
 
         [HttpPost("Category")]
-        public async Task<IActionResult> CreateCategory([FromBody] CatalogDTO dto)
+        public async Task<IActionResult> CreateCategory([FromBody] CategoryDTO dto)
         {
             try
             {
                 var result = await _catalogService.CreateCategoryAsync(dto);
-                return Ok(new Response<CatalogDTO> { status = true, value = result });
+                return Ok(new Response<CategoryDTO> { status = true, value = result });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new Response<CatalogDTO> { status = false, msg = ex.Message });
+                return StatusCode(500, new Response<CategoryDTO> { status = false, msg = ex.Message });
             }
         }
 
@@ -171,6 +186,34 @@ namespace SystemERP.API.Controllers
             try
             {
                 var result = await _catalogService.DeleteCategoryAsync(id);
+                return Ok(new Response<bool> { status = true, value = result });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new Response<bool> { status = false, msg = ex.Message });
+            }
+        }
+
+        [HttpPost("SubCategory")]
+        public async Task<IActionResult> CreateSubCategory([FromBody] SubCategoryDTO dto)
+        {
+            try
+            {
+                var result = await _catalogService.CreateSubCategoryAsync(dto);
+                return Ok(new Response<SubCategoryDTO> { status = true, value = result });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new Response<SubCategoryDTO> { status = false, msg = ex.Message });
+            }
+        }
+
+        [HttpDelete("SubCategory/{id}")]
+        public async Task<IActionResult> DeleteSubCategory(int id)
+        {
+            try
+            {
+                var result = await _catalogService.DeleteSubCategoryAsync(id);
                 return Ok(new Response<bool> { status = true, value = result });
             }
             catch (Exception ex)
@@ -208,16 +251,16 @@ namespace SystemERP.API.Controllers
         }
 
         [HttpPost("UnitMeasure")]
-        public async Task<IActionResult> CreateUnitMeasure([FromBody] CatalogDTO dto)
+        public async Task<IActionResult> CreateUnitMeasure([FromBody] UnitMeasureDTO dto)
         {
             try
             {
                 var result = await _catalogService.CreateUnitMeasureAsync(dto);
-                return Ok(new Response<CatalogDTO> { status = true, value = result });
+                return Ok(new Response<UnitMeasureDTO> { status = true, value = result });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new Response<CatalogDTO> { status = false, msg = ex.Message });
+                return StatusCode(500, new Response<UnitMeasureDTO> { status = false, msg = ex.Message });
             }
         }
 

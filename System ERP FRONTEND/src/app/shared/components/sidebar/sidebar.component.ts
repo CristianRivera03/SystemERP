@@ -36,9 +36,15 @@ export class SidebarComponent {
   });
 
   private mapModuleToNavItem(module: ModuleDTO): NavItem {
-    // Resolve route from DB frontend_path
-    let route = module.frontendPath || '/catalogs';
-    if (route === '/dashboard') route = '/catalogs';
+    // Resolve route safely from DB frontend_path (supporting camelCase, snake_case and PascalCase)
+    let rawRoute = module.frontendPath || (module as any).frontend_path || (module as any).FrontendPath || '/catalogs';
+    rawRoute = rawRoute.trim();
+    if (!rawRoute.startsWith('/')) {
+      rawRoute = '/' + rawRoute;
+    }
+    if (rawRoute === '/dashboard') {
+      rawRoute = '/catalogs';
+    }
 
     let rawIcon = (module.icon || 'folder').trim().toLowerCase();
 
@@ -92,7 +98,7 @@ export class SidebarComponent {
     return {
       label: module.name,
       icon: iconClass,
-      route: route
+      route: rawRoute
     };
   }
 }

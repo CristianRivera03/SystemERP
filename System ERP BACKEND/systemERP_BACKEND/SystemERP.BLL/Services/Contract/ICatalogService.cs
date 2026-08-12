@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using SystemERP.DTO.Catalog;
+using SystemERP.DTO.Products;
 
 namespace SystemERP.BLL.Services.Contract
 {
@@ -10,8 +11,9 @@ namespace SystemERP.BLL.Services.Contract
         Task<List<CatalogDTO>> GetRolesAsync();
         Task<List<CatalogDTO>> GetCountriesAsync();
         Task<List<CatalogDTO>> GetCategoriesAsync();
+        Task<List<SubCategoryDTO>> GetSubCategoriesAsync(int? categoryId = null);
         Task<List<CatalogDTO>> GetProductTypesAsync();
-        Task<List<CatalogDTO>> GetUnitMeasuresAsync();
+        Task<List<UnitMeasureDTO>> GetUnitMeasuresAsync();
         Task<List<CatalogDTO>> GetPresentationsAsync();
 
         // Ubicación geográfica
@@ -20,13 +22,16 @@ namespace SystemERP.BLL.Services.Contract
         Task<List<CatalogDTO<string>>> GetDistrictsAsync(string municipalityId);
 
         // CRUD Admin de Catálogos
-        Task<CatalogDTO> CreateCategoryAsync(CatalogDTO dto);
+        Task<CategoryDTO> CreateCategoryAsync(CategoryDTO dto);
         Task<bool> DeleteCategoryAsync(int id);
+
+        Task<SubCategoryDTO> CreateSubCategoryAsync(SubCategoryDTO dto);
+        Task<bool> DeleteSubCategoryAsync(int id);
 
         Task<CatalogDTO> CreateProductTypeAsync(CatalogDTO dto);
         Task<bool> DeleteProductTypeAsync(int id);
 
-        Task<CatalogDTO> CreateUnitMeasureAsync(CatalogDTO dto);
+        Task<UnitMeasureDTO> CreateUnitMeasureAsync(UnitMeasureDTO dto);
         Task<bool> DeleteUnitMeasureAsync(int id);
 
         Task<CatalogDTO> CreatePresentationAsync(CatalogDTO dto);

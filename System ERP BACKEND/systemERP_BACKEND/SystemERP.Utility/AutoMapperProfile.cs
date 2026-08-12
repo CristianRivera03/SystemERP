@@ -77,6 +77,14 @@ public class AutoMapperProfile : Profile
         // Category
         CreateMap<Category, CategoryDTO>().ReverseMap();
 
+        // SubCategory
+        CreateMap<SubCategory, SubCategoryDTO>()
+            .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.IdCategoryNavigation != null ? src.IdCategoryNavigation.Name : null));
+
+        CreateMap<SubCategoryDTO, SubCategory>()
+            .ForMember(dest => dest.IdCategoryNavigation, opt => opt.Ignore())
+            .ForMember(dest => dest.Products, opt => opt.Ignore());
+
         // ProductType
         CreateMap<ProductType, ProductTypeDTO>().ReverseMap();
 
@@ -89,13 +97,21 @@ public class AutoMapperProfile : Profile
         // Product
         CreateMap<Product, ProductDTO>()
             .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.IdCategoryNavigation != null ? src.IdCategoryNavigation.Name : null))
+            .ForMember(dest => dest.SubCategoryName, opt => opt.MapFrom(src => src.IdSubCategoryNavigation != null ? src.IdSubCategoryNavigation.Name : null))
             .ForMember(dest => dest.ProductTypeDescription, opt => opt.MapFrom(src => src.IdProductTypeNavigation != null ? src.IdProductTypeNavigation.Description : null))
-            .ForMember(dest => dest.UnitMeasureDescription, opt => opt.MapFrom(src => src.IdUnitMeasureNavigation != null ? src.IdUnitMeasureNavigation.Description : null));
+            .ForMember(dest => dest.UnitMeasureDescription, opt => opt.MapFrom(src => src.IdUnitMeasureNavigation != null ? src.IdUnitMeasureNavigation.Description : null))
+            .ForMember(dest => dest.PurchaseUnitName, opt => opt.MapFrom(src => src.PurchaseUnit != null ? (src.PurchaseUnit.Name ?? src.PurchaseUnit.Description) : null))
+            .ForMember(dest => dest.SaleUnitName, opt => opt.MapFrom(src => src.SaleUnit != null ? (src.SaleUnit.Name ?? src.SaleUnit.Description) : null));
 
         CreateMap<ProductDTO, Product>()
             .ForMember(dest => dest.IdCategoryNavigation, opt => opt.Ignore())
+            .ForMember(dest => dest.IdSubCategoryNavigation, opt => opt.Ignore())
             .ForMember(dest => dest.IdProductTypeNavigation, opt => opt.Ignore())
-            .ForMember(dest => dest.IdUnitMeasureNavigation, opt => opt.Ignore());
+            .ForMember(dest => dest.IdUnitMeasureNavigation, opt => opt.Ignore())
+            .ForMember(dest => dest.PurchaseUnit, opt => opt.Ignore())
+            .ForMember(dest => dest.SaleUnit, opt => opt.Ignore())
+            .ForMember(dest => dest.InventoryStocks, opt => opt.Ignore())
+            .ForMember(dest => dest.ProductPresentations, opt => opt.Ignore());
 
         // ProductPresentation
         CreateMap<ProductPresentation, ProductPresentationDTO>()
@@ -117,14 +133,19 @@ public class AutoMapperProfile : Profile
         CreateMap<CustomerDTO, Customer>()
             .ForMember(dest => dest.District, opt => opt.Ignore());
 
+        // SupplierContact
+        CreateMap<SupplierContact, SupplierContactDTO>().ReverseMap();
+
         // Supplier
         CreateMap<Supplier, SupplierDTO>()
             .ForMember(dest => dest.DistrictName, opt => opt.MapFrom(src => src.District != null ? src.District.Name : null))
             .ForMember(dest => dest.MunicipalityName, opt => opt.MapFrom(src => (src.District != null && src.District.Municipality != null) ? src.District.Municipality.Name : null))
-            .ForMember(dest => dest.DepartmentName, opt => opt.MapFrom(src => (src.District != null && src.District.Municipality != null && src.District.Municipality.Department != null) ? src.District.Municipality.Department.Name : null));
+            .ForMember(dest => dest.DepartmentName, opt => opt.MapFrom(src => (src.District != null && src.District.Municipality != null && src.District.Municipality.Department != null) ? src.District.Municipality.Department.Name : null))
+            .ForMember(dest => dest.Contacts, opt => opt.MapFrom(src => src.SupplierContacts));
 
         CreateMap<SupplierDTO, Supplier>()
-            .ForMember(dest => dest.District, opt => opt.Ignore());
+            .ForMember(dest => dest.District, opt => opt.Ignore())
+            .ForMember(dest => dest.SupplierContacts, opt => opt.Ignore());
 
         // Company
         CreateMap<Company, SystemERP.DTO.Entities.CompanyDTO>()
@@ -184,6 +205,10 @@ public class AutoMapperProfile : Profile
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.IdCategory))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
+        CreateMap<SubCategory, CatalogDTO>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.IdSubCategory))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+
         CreateMap<Role, CatalogDTO>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.IdRole))
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.RoleName));
@@ -198,7 +223,7 @@ public class AutoMapperProfile : Profile
 
         CreateMap<UnitMeasure, CatalogDTO>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.IdUnitMeasure))
-            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Description));
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name ?? src.Description));
 
         CreateMap<Presentation, CatalogDTO>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.IdPresentation))

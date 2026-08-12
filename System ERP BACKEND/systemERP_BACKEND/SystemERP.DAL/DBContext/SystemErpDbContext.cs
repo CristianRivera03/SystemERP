@@ -50,7 +50,11 @@ public partial class SystemErpDbContext : DbContext
 
     public virtual DbSet<Role> Roles { get; set; }
 
+    public virtual DbSet<SubCategory> SubCategories { get; set; }
+
     public virtual DbSet<Supplier> Suppliers { get; set; }
+
+    public virtual DbSet<SupplierContact> SupplierContacts { get; set; }
 
     public virtual DbSet<UnitMeasure> UnitMeasures { get; set; }
 
@@ -152,6 +156,7 @@ public partial class SystemErpDbContext : DbContext
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnName("created_at");
             entity.Property(e => e.DeletedAt).HasColumnName("deleted_at");
+            entity.Property(e => e.Description).HasColumnName("description");
             entity.Property(e => e.IsActive)
                 .HasDefaultValue(true)
                 .HasColumnName("is_active");
@@ -461,6 +466,8 @@ public partial class SystemErpDbContext : DbContext
 
             entity.HasIndex(e => e.InternalCode, "products_internal_code_key").IsUnique();
 
+            entity.HasIndex(e => e.Sku, "products_sku_key").IsUnique();
+
             entity.Property(e => e.IdProduct)
                 .HasDefaultValueSql("gen_random_uuid()")
                 .HasColumnName("id_product");
@@ -472,8 +479,12 @@ public partial class SystemErpDbContext : DbContext
                 .HasColumnName("created_at");
             entity.Property(e => e.DeletedAt).HasColumnName("deleted_at");
             entity.Property(e => e.Description).HasColumnName("description");
+            entity.Property(e => e.Dimensions)
+                .HasMaxLength(100)
+                .HasColumnName("dimensions");
             entity.Property(e => e.IdCategory).HasColumnName("id_category");
             entity.Property(e => e.IdProductType).HasColumnName("id_product_type");
+            entity.Property(e => e.IdSubCategory).HasColumnName("id_sub_category");
             entity.Property(e => e.IdUnitMeasure).HasColumnName("id_unit_measure");
             entity.Property(e => e.ImageUrl).HasColumnName("image_url");
             entity.Property(e => e.InternalCode)
@@ -492,6 +503,20 @@ public partial class SystemErpDbContext : DbContext
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
                 .HasColumnName("name");
+            entity.Property(e => e.OriginalCode)
+                .HasMaxLength(100)
+                .HasColumnName("original_code");
+            entity.Property(e => e.Presentation)
+                .HasMaxLength(100)
+                .HasColumnName("presentation");
+            entity.Property(e => e.PurchaseUnitId).HasColumnName("purchase_unit_id");
+            entity.Property(e => e.SaleUnitId).HasColumnName("sale_unit_id");
+            entity.Property(e => e.Size)
+                .HasMaxLength(50)
+                .HasColumnName("size");
+            entity.Property(e => e.Sku)
+                .HasMaxLength(100)
+                .HasColumnName("sku");
             entity.Property(e => e.TaxCode)
                 .HasMaxLength(2)
                 .HasDefaultValueSql("'20'::bpchar")
@@ -511,10 +536,25 @@ public partial class SystemErpDbContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("products_id_product_type_fkey");
 
-            entity.HasOne(d => d.IdUnitMeasureNavigation).WithMany(p => p.Products)
+            entity.HasOne(d => d.IdSubCategoryNavigation).WithMany(p => p.Products)
+                .HasForeignKey(d => d.IdSubCategory)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("products_id_sub_category_fkey");
+
+            entity.HasOne(d => d.IdUnitMeasureNavigation).WithMany(p => p.ProductIdUnitMeasureNavigations)
                 .HasForeignKey(d => d.IdUnitMeasure)
                 .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("products_id_unit_measure_fkey");
+
+            entity.HasOne(d => d.PurchaseUnit).WithMany(p => p.ProductPurchaseUnits)
+                .HasForeignKey(d => d.PurchaseUnitId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("products_purchase_unit_id_fkey");
+
+            entity.HasOne(d => d.SaleUnit).WithMany(p => p.ProductSaleUnits)
+                .HasForeignKey(d => d.SaleUnitId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("products_sale_unit_id_fkey");
         });
 
         modelBuilder.Entity<ProductPresentation>(entity =>
@@ -592,11 +632,34 @@ public partial class SystemErpDbContext : DbContext
                     });
         });
 
+        modelBuilder.Entity<SubCategory>(entity =>
+        {
+            entity.HasKey(e => e.IdSubCategory).HasName("sub_categories_pkey");
+
+            entity.ToTable("sub_categories");
+
+            entity.Property(e => e.IdSubCategory).HasColumnName("id_sub_category");
+            entity.Property(e => e.Description).HasColumnName("description");
+            entity.Property(e => e.IdCategory).HasColumnName("id_category");
+            entity.Property(e => e.IsActive)
+                .HasDefaultValue(true)
+                .HasColumnName("is_active");
+            entity.Property(e => e.Name)
+                .HasMaxLength(150)
+                .HasColumnName("name");
+
+            entity.HasOne(d => d.IdCategoryNavigation).WithMany(p => p.SubCategories)
+                .HasForeignKey(d => d.IdCategory)
+                .HasConstraintName("sub_categories_id_category_fkey");
+        });
+
         modelBuilder.Entity<Supplier>(entity =>
         {
             entity.HasKey(e => e.IdSupplier).HasName("suppliers_pkey");
 
             entity.ToTable("suppliers");
+
+            entity.HasIndex(e => e.Code, "suppliers_code_key").IsUnique();
 
             entity.Property(e => e.IdSupplier)
                 .HasDefaultValueSql("gen_random_uuid()")
@@ -604,6 +667,9 @@ public partial class SystemErpDbContext : DbContext
             entity.Property(e => e.AddressComplement)
                 .HasMaxLength(150)
                 .HasColumnName("address_complement");
+            entity.Property(e => e.Code)
+                .HasMaxLength(50)
+                .HasColumnName("code");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnName("created_at");
@@ -629,11 +695,40 @@ public partial class SystemErpDbContext : DbContext
             entity.Property(e => e.UpdatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnName("updated_at");
+            entity.Property(e => e.Website)
+                .HasMaxLength(255)
+                .HasColumnName("website");
 
             entity.HasOne(d => d.District).WithMany(p => p.Suppliers)
                 .HasForeignKey(d => d.DistrictId)
                 .OnDelete(DeleteBehavior.Restrict)
                 .HasConstraintName("suppliers_district_id_fkey");
+        });
+
+        modelBuilder.Entity<SupplierContact>(entity =>
+        {
+            entity.HasKey(e => e.IdSupplierContact).HasName("supplier_contacts_pkey");
+
+            entity.ToTable("supplier_contacts");
+
+            entity.Property(e => e.IdSupplierContact).HasColumnName("id_supplier_contact");
+            entity.Property(e => e.Email)
+                .HasMaxLength(100)
+                .HasColumnName("email");
+            entity.Property(e => e.FullName)
+                .HasMaxLength(150)
+                .HasColumnName("full_name");
+            entity.Property(e => e.IdSupplier).HasColumnName("id_supplier");
+            entity.Property(e => e.IsActive)
+                .HasDefaultValue(true)
+                .HasColumnName("is_active");
+            entity.Property(e => e.Phone)
+                .HasMaxLength(20)
+                .HasColumnName("phone");
+
+            entity.HasOne(d => d.IdSupplierNavigation).WithMany(p => p.SupplierContacts)
+                .HasForeignKey(d => d.IdSupplier)
+                .HasConstraintName("supplier_contacts_id_supplier_fkey");
         });
 
         modelBuilder.Entity<UnitMeasure>(entity =>
@@ -646,6 +741,15 @@ public partial class SystemErpDbContext : DbContext
             entity.Property(e => e.Description)
                 .HasMaxLength(100)
                 .HasColumnName("description");
+            entity.Property(e => e.IsActive)
+                .HasDefaultValue(true)
+                .HasColumnName("is_active");
+            entity.Property(e => e.Name)
+                .HasMaxLength(50)
+                .HasColumnName("name");
+            entity.Property(e => e.Type)
+                .HasMaxLength(50)
+                .HasColumnName("type");
         });
 
         modelBuilder.Entity<User>(entity =>

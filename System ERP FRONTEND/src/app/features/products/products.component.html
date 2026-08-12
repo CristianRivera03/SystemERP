@@ -1,0 +1,216 @@
+<div class="ibm-container">
+  <!-- Header -->
+  <div class="ibm-header">
+    <div>
+      <h1 class="ibm-title">Gestión de Productos</h1>
+      <p class="ibm-subtitle">Catálogo maestro de artículos, unidades de medida, SKU y categorías</p>
+    </div>
+    <button class="ibm-btn ibm-btn-primary" (click)="openCreateModal()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      Nuevo Producto
+    </button>
+  </div>
+
+  <!-- Alerts -->
+  <div *ngIf="successMessage()" class="ibm-alert ibm-alert-success">
+    <span>{{ successMessage() }}</span>
+  </div>
+  <div *ngIf="errorMessage()" class="ibm-alert ibm-alert-error">
+    <span>{{ errorMessage() }}</span>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="ibm-toolbar">
+    <div class="search-box">
+      <input
+        type="text"
+        placeholder="Buscar por código, SKU o nombre de producto..."
+        [(ngModel)]="searchTerm"
+        (input)="applyFilter()"
+        class="ibm-input"
+      />
+    </div>
+    <div class="filter-box">
+      <select [(ngModel)]="filterCategory" (change)="applyFilter()" class="ibm-select">
+        <option [value]="0">Todas las Categorías</option>
+        <option *ngFor="let cat of categories()" [value]="cat.id">{{ cat.name }}</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="ibm-card">
+    <div class="table-responsive">
+      <table class="ibm-table">
+        <thead>
+          <tr>
+            <th>SKU / Código</th>
+            <th>Nombre del Producto</th>
+            <th>Categoría / Subcategoría</th>
+            <th>Tipo</th>
+            <th>U. Medida (Venta/Compra)</th>
+            <th>Stock Mín.</th>
+            <th>Estado</th>
+            <th class="text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="isLoading()">
+            <td colspan="8" class="text-center py-4">Cargando productos...</td>
+          </tr>
+          <tr *ngIf="!isLoading() && filteredProducts().length === 0">
+            <td colspan="8" class="text-center py-4">No se encontraron productos registrados.</td>
+          </tr>
+          <tr *ngFor="let prod of filteredProducts()">
+            <td>
+              <span class="ibm-code-badge">{{ prod.sku || prod.internalCode || 'N/A' }}</span>
+            </td>
+            <td>
+              <div class="font-medium text-white">{{ prod.name }}</div>
+              <div class="text-xs text-muted" *ngIf="prod.presentation">Presentación: {{ prod.presentation }}</div>
+            </td>
+            <td>
+              <div>{{ prod.categoryName || 'Sin Categoría' }}</div>
+              <div class="text-xs text-muted" *ngIf="prod.subCategoryName">↳ {{ prod.subCategoryName }}</div>
+            </td>
+            <td>
+              <span class="ibm-badge ibm-badge-info">{{ prod.productTypeDescription || 'Estándar' }}</span>
+            </td>
+            <td>
+              <div class="text-xs">Venta: {{ prod.saleUnitName || prod.unitMeasureDescription || 'Unidad' }}</div>
+              <div class="text-xs text-muted" *ngIf="prod.purchaseUnitName">Compra: {{ prod.purchaseUnitName }}</div>
+            </td>
+            <td>
+              <span class="font-medium">{{ prod.minStock || 0 }}</span>
+            </td>
+            <td>
+              <span [class]="prod.isActive ? 'ibm-badge ibm-badge-success' : 'ibm-badge ibm-badge-danger'">
+                {{ prod.isActive ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td class="text-right actions-cell">
+              <button class="icon-btn edit-btn" title="Editar" (click)="openEditModal(prod)">
+                ✏️
+              </button>
+              <button
+                class="icon-btn status-btn"
+                [title]="prod.isActive ? 'Desactivar' : 'Activar'"
+                (click)="toggleStatus(prod)"
+              >
+                {{ prod.isActive ? '🚫' : '✅' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Create / Edit Product -->
+<div class="modal-backdrop" *ngIf="showModal()" (click)="closeModal()">
+  <div class="modal-container modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ isEditMode() ? 'Editar Producto' : 'Nuevo Producto' }}</h3>
+      <button class="close-btn" (click)="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group span-2">
+          <label>Nombre del Producto *</label>
+          <input type="text" [(ngModel)]="formName" placeholder="Ej: Laptop Lenovo ThinkPad X1" class="ibm-input" />
+        </div>
+
+        <div class="form-group">
+          <label>Categoría *</label>
+          <select [ngModel]="formCategoryId" (ngModelChange)="onCategoryChange($event)" class="ibm-select">
+            <option [value]="0">Seleccione Categoría</option>
+            <option *ngFor="let cat of categories()" [value]="cat.id">{{ cat.name }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Subcategoría</label>
+          <select [(ngModel)]="formSubCategoryId" class="ibm-select" [disabled]="subCategories().length === 0">
+            <option [ngValue]="null">Seleccione Subcategoría</option>
+            <option *ngFor="let sub of subCategories()" [value]="sub.idSubCategory">{{ sub.name }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Tipo de Producto *</label>
+          <select [(ngModel)]="formProductTypeId" class="ibm-select">
+            <option [value]="0">Seleccione Tipo</option>
+            <option *ngFor="let pt of productTypes()" [value]="pt.id">{{ pt.name }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Unidad de Medida Principal *</label>
+          <select [(ngModel)]="formUnitMeasureId" class="ibm-select">
+            <option [value]="0">Seleccione Unidad</option>
+            <option *ngFor="let um of unitMeasures()" [value]="um.idUnitMeasure">{{ um.name || um.description }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Unidad de Compra</label>
+          <select [(ngModel)]="formPurchaseUnitId" class="ibm-select">
+            <option [ngValue]="null">Misma que Principal</option>
+            <option *ngFor="let um of unitMeasures()" [value]="um.idUnitMeasure">{{ um.name || um.description }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Unidad de Venta</label>
+          <select [(ngModel)]="formSaleUnitId" class="ibm-select">
+            <option [ngValue]="null">Misma que Principal</option>
+            <option *ngFor="let um of unitMeasures()" [value]="um.idUnitMeasure">{{ um.name || um.description }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>SKU</label>
+          <input type="text" [(ngModel)]="formSku" placeholder="PROD-001" class="ibm-input" />
+        </div>
+
+        <div class="form-group">
+          <label>Código Original (Fabricante)</label>
+          <input type="text" [(ngModel)]="formOriginalCode" placeholder="FAB-9921" class="ibm-input" />
+        </div>
+
+        <div class="form-group">
+          <label>Código de Barras</label>
+          <input type="text" [(ngModel)]="formBarcode" placeholder="74109283749" class="ibm-input" />
+        </div>
+
+        <div class="form-group">
+          <label>Presentación / Empaque</label>
+          <input type="text" [(ngModel)]="formPresentation" placeholder="Caja x 12 Unidades" class="ibm-input" />
+        </div>
+
+        <div class="form-group">
+          <label>Stock Mínimo</label>
+          <input type="number" [(ngModel)]="formMinStock" placeholder="5" class="ibm-input" />
+        </div>
+
+        <div class="form-group">
+          <label>Tamaño / Medidas</label>
+          <input type="text" [(ngModel)]="formSize" placeholder="Grande / XL / 15 Pulgadas" class="ibm-input" />
+        </div>
+
+        <div class="form-group span-2">
+          <label>Descripción General</label>
+          <textarea [(ngModel)]="formDescription" rows="2" placeholder="Detalles técnicos y características del producto" class="ibm-textarea"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="ibm-btn ibm-btn-secondary" (click)="closeModal()">Cancelar</button>
+      <button class="ibm-btn ibm-btn-primary" (click)="saveProduct()">Guardar Producto</button>
+    </div>
+  </div>
+</div>

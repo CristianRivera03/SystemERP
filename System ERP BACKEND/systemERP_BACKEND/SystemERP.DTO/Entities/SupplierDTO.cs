@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace SystemERP.DTO.Entities;
 
 public class SupplierDTO
@@ -7,6 +10,10 @@ public class SupplierDTO
     public string Name { get; set; } = null!;
 
     public string TaxId { get; set; } = null!;
+
+    public string? Code { get; set; }
+
+    public string? Website { get; set; }
 
     public string? Email { get; set; }
 
@@ -25,4 +32,6 @@ public class SupplierDTO
     public bool? IsActive { get; set; }
 
     public DateTime? CreatedAt { get; set; }
+
+    public List<SupplierContactDTO> Contacts { get; set; } = new List<SupplierContactDTO>();
 }

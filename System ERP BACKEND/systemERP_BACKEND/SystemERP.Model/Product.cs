@@ -37,13 +37,35 @@ public partial class Product
 
     public decimal? MinStock { get; set; }
 
+    public int? IdSubCategory { get; set; }
+
+    public string? Sku { get; set; }
+
+    public string? OriginalCode { get; set; }
+
+    public string? Size { get; set; }
+
+    public string? Dimensions { get; set; }
+
+    public string? Presentation { get; set; }
+
+    public int? PurchaseUnitId { get; set; }
+
+    public int? SaleUnitId { get; set; }
+
     public virtual Category IdCategoryNavigation { get; set; } = null!;
 
     public virtual ProductType IdProductTypeNavigation { get; set; } = null!;
+
+    public virtual SubCategory? IdSubCategoryNavigation { get; set; }
 
     public virtual UnitMeasure IdUnitMeasureNavigation { get; set; } = null!;
 
     public virtual ICollection<InventoryStock> InventoryStocks { get; set; } = new List<InventoryStock>();
 
     public virtual ICollection<ProductPresentation> ProductPresentations { get; set; } = new List<ProductPresentation>();
+
+    public virtual UnitMeasure? PurchaseUnit { get; set; }
+
+    public virtual UnitMeasure? SaleUnit { get; set; }
 }

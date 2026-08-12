@@ -1,0 +1,163 @@
+<div class="ibm-container">
+  <!-- Header -->
+  <div class="ibm-header">
+    <div>
+      <h1 class="ibm-title">Gestión de Clientes</h1>
+      <p class="ibm-subtitle">Padrón tributario de clientes, teléfonos, correos y ubicación</p>
+    </div>
+    <button class="ibm-btn ibm-btn-primary" (click)="openCreateModal()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      Nuevo Cliente
+    </button>
+  </div>
+
+  <!-- Alerts -->
+  <div *ngIf="successMessage()" class="ibm-alert ibm-alert-success">
+    <span>{{ successMessage() }}</span>
+  </div>
+  <div *ngIf="errorMessage()" class="ibm-alert ibm-alert-error">
+    <span>{{ errorMessage() }}</span>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="ibm-toolbar">
+    <div class="search-box">
+      <input
+        type="text"
+        placeholder="Buscar cliente por NIT/DUI, nombre completo o correo..."
+        [(ngModel)]="searchTerm"
+        (input)="applyFilter()"
+        class="ibm-input"
+      />
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="ibm-card">
+    <div class="table-responsive">
+      <table class="ibm-table">
+        <thead>
+          <tr>
+            <th>NIT / DUI</th>
+            <th>Nombre / Razón Social</th>
+            <th>Teléfono / Correo</th>
+            <th>Ubicación Geográfica</th>
+            <th>Estado</th>
+            <th class="text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="isLoading()">
+            <td colspan="6" class="text-center py-4">Cargando clientes...</td>
+          </tr>
+          <tr *ngIf="!isLoading() && filteredCustomers().length === 0">
+            <td colspan="6" class="text-center py-4">No se encontraron clientes registrados.</td>
+          </tr>
+          <tr *ngFor="let cust of filteredCustomers()">
+            <td>
+              <span class="ibm-code-badge">{{ cust.taxId }}</span>
+            </td>
+            <td>
+              <div class="font-medium text-white">{{ cust.name }}</div>
+            </td>
+            <td>
+              <div>{{ cust.phone || 'Sin Teléfono' }}</div>
+              <div class="text-xs text-muted" *ngIf="cust.email">{{ cust.email }}</div>
+            </td>
+            <td>
+              <div>{{ cust.districtName || 'Distrito N/A' }}</div>
+              <div class="text-xs text-muted">{{ cust.departmentName }} - {{ cust.municipalityName }}</div>
+            </td>
+            <td>
+              <span [class]="cust.isActive ? 'ibm-badge ibm-badge-success' : 'ibm-badge ibm-badge-danger'">
+                {{ cust.isActive ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td class="text-right actions-cell">
+              <button class="icon-btn edit-btn" title="Editar" (click)="openEditModal(cust)">
+                ✏️
+              </button>
+              <button
+                class="icon-btn status-btn"
+                [title]="cust.isActive ? 'Desactivar' : 'Activar'"
+                (click)="toggleStatus(cust)"
+              >
+                {{ cust.isActive ? '🚫' : '✅' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Create / Edit Customer -->
+<div class="modal-backdrop" *ngIf="showModal()" (click)="closeModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ isEditMode() ? 'Editar Cliente' : 'Nuevo Cliente' }}</h3>
+      <button class="close-btn" (click)="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group span-2">
+          <label>Nombre Completo / Razón Social *</label>
+          <input type="text" [(ngModel)]="formName" placeholder="Ej: Juan Pérez o Comercial El Sol S.A." class="ibm-input" />
+        </div>
+
+        <div class="form-group">
+          <label>DUI / NIT / Tax ID *</label>
+          <input type="text" [(ngModel)]="formTaxId" placeholder="01234567-8" class="ibm-input" />
+        </div>
+
+        <div class="form-group">
+          <label>Teléfono</label>
+          <input type="text" [(ngModel)]="formPhone" placeholder="7700-1122" class="ibm-input" />
+        </div>
+
+        <div class="form-group span-2">
+          <label>Correo Electrónico</label>
+          <input type="email" [(ngModel)]="formEmail" placeholder="cliente@correo.com" class="ibm-input" />
+        </div>
+
+        <!-- Location Cascaded -->
+        <div class="form-group">
+          <label>Departamento *</label>
+          <select [ngModel]="selectedDepartmentId" (ngModelChange)="onDepartmentChange($event)" class="ibm-select">
+            <option value="">Seleccione Departamento</option>
+            <option *ngFor="let dep of departments()" [value]="dep.id">{{ dep.name }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Municipio *</label>
+          <select [ngModel]="selectedMunicipalityId" (ngModelChange)="onMunicipalityChange($event)" class="ibm-select" [disabled]="municipalities().length === 0">
+            <option value="">Seleccione Municipio</option>
+            <option *ngFor="let mun of municipalities()" [value]="mun.id">{{ mun.name }}</option>
+          </select>
+        </div>
+
+        <div class="form-group span-2">
+          <label>Distrito *</label>
+          <select [(ngModel)]="selectedDistrictId" class="ibm-select" [disabled]="districts().length === 0">
+            <option value="">Seleccione Distrito</option>
+            <option *ngFor="let dis of districts()" [value]="dis.id">{{ dis.name }}</option>
+          </select>
+        </div>
+
+        <div class="form-group span-2">
+          <label>Dirección Complementaria</label>
+          <input type="text" [(ngModel)]="formAddressComplement" placeholder="Colonia San Benito, Psj 3, Casa #45" class="ibm-input" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="ibm-btn ibm-btn-secondary" (click)="closeModal()">Cancelar</button>
+      <button class="ibm-btn ibm-btn-primary" (click)="saveCustomer()">Guardar Cliente</button>
+    </div>
+  </div>
+</div>

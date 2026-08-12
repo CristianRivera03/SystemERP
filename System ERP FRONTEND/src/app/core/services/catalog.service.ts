@@ -5,6 +5,23 @@ import { environment } from '../../../environments/environment';
 import { Response } from '../models/api-response.model';
 import { CatalogDTO } from '../models/catalog.models';
 
+export interface SubCategoryDTO {
+  idSubCategory: number;
+  idCategory: number;
+  categoryName?: string;
+  name: string;
+  description?: string;
+  isActive?: boolean;
+}
+
+export interface UnitMeasureDTO {
+  idUnitMeasure: number;
+  description: string;
+  name?: string;
+  type?: string;
+  isActive?: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -25,12 +42,17 @@ export class CatalogService {
     return this.http.get<Response<CatalogDTO[]>>(`${this.apiUrl}/Categories`);
   }
 
+  public getSubCategories(categoryId?: number): Observable<Response<SubCategoryDTO[]>> {
+    const url = categoryId ? `${this.apiUrl}/SubCategories?categoryId=${categoryId}` : `${this.apiUrl}/SubCategories`;
+    return this.http.get<Response<SubCategoryDTO[]>>(url);
+  }
+
   public getProductTypes(): Observable<Response<CatalogDTO[]>> {
     return this.http.get<Response<CatalogDTO[]>>(`${this.apiUrl}/ProductTypes`);
   }
 
-  public getUnitMeasures(): Observable<Response<CatalogDTO[]>> {
-    return this.http.get<Response<CatalogDTO[]>>(`${this.apiUrl}/UnitMeasures`);
+  public getUnitMeasures(): Observable<Response<UnitMeasureDTO[]>> {
+    return this.http.get<Response<UnitMeasureDTO[]>>(`${this.apiUrl}/UnitMeasures`);
   }
 
   public getPresentations(): Observable<Response<CatalogDTO[]>> {
@@ -60,6 +82,15 @@ export class CatalogService {
     return this.http.delete<Response<boolean>>(`${this.apiUrl}/Category/${id}`);
   }
 
+  // SubCategory
+  public createSubCategory(dto: SubCategoryDTO): Observable<Response<SubCategoryDTO>> {
+    return this.http.post<Response<SubCategoryDTO>>(`${this.apiUrl}/SubCategory`, dto);
+  }
+
+  public deleteSubCategory(id: number): Observable<Response<boolean>> {
+    return this.http.delete<Response<boolean>>(`${this.apiUrl}/SubCategory/${id}`);
+  }
+
   // ProductType
   public createProductType(dto: CatalogDTO): Observable<Response<CatalogDTO>> {
     return this.http.post<Response<CatalogDTO>>(`${this.apiUrl}/ProductType`, dto);
@@ -70,8 +101,8 @@ export class CatalogService {
   }
 
   // UnitMeasure
-  public createUnitMeasure(dto: CatalogDTO): Observable<Response<CatalogDTO>> {
-    return this.http.post<Response<CatalogDTO>>(`${this.apiUrl}/UnitMeasure`, dto);
+  public createUnitMeasure(dto: UnitMeasureDTO): Observable<Response<UnitMeasureDTO>> {
+    return this.http.post<Response<UnitMeasureDTO>>(`${this.apiUrl}/UnitMeasure`, dto);
   }
 
   public deleteUnitMeasure(id: number): Observable<Response<boolean>> {

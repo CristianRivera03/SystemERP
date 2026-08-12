@@ -1,0 +1,256 @@
+.ibm-container {
+  padding: 1.5rem;
+  color: #f4f4f4;
+}
+
+.ibm-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+
+  .ibm-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+    color: #ffffff;
+  }
+
+  .ibm-subtitle {
+    font-size: 0.875rem;
+    color: #a8a8a8;
+    margin-top: 0.25rem;
+  }
+}
+
+.ibm-toolbar {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  .search-box {
+    flex: 1;
+  }
+
+  .filter-box {
+    width: 220px;
+  }
+}
+
+.ibm-card {
+  background: #262626;
+  border: 1px solid #393939;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.ibm-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th, td {
+    padding: 0.875rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #393939;
+  }
+
+  th {
+    background: #161616;
+    color: #a8a8a8;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  tr:hover {
+    background: #333333;
+  }
+}
+
+.ibm-code-badge {
+  font-family: monospace;
+  background: #161616;
+  color: #0f62fe;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  border: 1px solid #393939;
+}
+
+.ibm-badge {
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-block;
+
+  &-success { background: rgba(36, 161, 72, 0.2); color: #42be65; border: 1px solid #24a148; }
+  &-danger { background: rgba(218, 30, 40, 0.2); color: #ff8389; border: 1px solid #da1e28; }
+  &-info { background: rgba(15, 98, 254, 0.2); color: #78a9ff; border: 1px solid #0f62fe; }
+}
+
+.actions-cell {
+  .icon-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 0.25rem 0.5rem;
+    transition: transform 0.15s ease;
+
+    &:hover {
+      transform: scale(1.2);
+    }
+  }
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+
+  .span-2 {
+    grid-column: span 2;
+  }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+
+  label {
+    font-size: 0.8rem;
+    color: #c6c6c6;
+    font-weight: 500;
+  }
+}
+
+.ibm-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+
+  &-primary {
+    background: #0f62fe;
+    color: #ffffff;
+
+    &:hover {
+      background: #0353e9;
+    }
+  }
+
+  &-secondary {
+    background: #393939;
+    color: #f4f4f4;
+
+    &:hover {
+      background: #4c4c4c;
+    }
+  }
+}
+
+.ibm-alert {
+  padding: 0.875rem 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+
+  &-success {
+    background: rgba(36, 161, 72, 0.15);
+    border-left: 4px solid #24a148;
+    color: #42be65;
+  }
+
+  &-error {
+    background: rgba(218, 30, 40, 0.15);
+    border-left: 4px solid #da1e28;
+    color: #ff8389;
+  }
+}
+
+/* Modal Styling */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(10, 10, 10, 0.75);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-container {
+  background: #262626;
+  border: 1px solid #454545;
+  border-top: 4px solid #0f62fe;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+
+  &.modal-lg {
+    max-width: 780px;
+  }
+}
+
+.modal-header {
+  padding: 1rem 1.25rem;
+  background: #161616;
+  border-bottom: 1px solid #393939;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  h3 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 1.15rem;
+  }
+
+  .close-btn {
+    background: transparent;
+    border: none;
+    color: #a8a8a8;
+    font-size: 1.2rem;
+    cursor: pointer;
+
+    &:hover {
+      color: #ffffff;
+    }
+  }
+}
+
+.modal-body {
+  padding: 1.25rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-footer {
+  padding: 1rem 1.25rem;
+  background: #161616;
+  border-top: 1px solid #393939;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}

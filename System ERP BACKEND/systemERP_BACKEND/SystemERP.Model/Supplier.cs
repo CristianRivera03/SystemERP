@@ -27,5 +27,11 @@ public partial class Supplier
 
     public DateTime? DeletedAt { get; set; }
 
+    public string? Code { get; set; }
+
+    public string? Website { get; set; }
+
     public virtual District District { get; set; } = null!;
+
+    public virtual ICollection<SupplierContact> SupplierContacts { get; set; } = new List<SupplierContact>();
 }

@@ -1,0 +1,200 @@
+<div class="ibm-container">
+  <!-- Header -->
+  <div class="ibm-header">
+    <div>
+      <h1 class="ibm-title">Gestión de Proveedores</h1>
+      <p class="ibm-subtitle">Registro de empresas proveedoras, contactos comerciales y ubicación</p>
+    </div>
+    <button class="ibm-btn ibm-btn-primary" (click)="openCreateModal()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      Nuevo Proveedor
+    </button>
+  </div>
+
+  <!-- Alerts -->
+  <div *ngIf="successMessage()" class="ibm-alert ibm-alert-success">
+    <span>{{ successMessage() }}</span>
+  </div>
+  <div *ngIf="errorMessage()" class="ibm-alert ibm-alert-error">
+    <span>{{ errorMessage() }}</span>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="ibm-toolbar">
+    <div class="search-box">
+      <input
+        type="text"
+        placeholder="Buscar proveedor por código, NIT, razón social o correo..."
+        [(ngModel)]="searchTerm"
+        (input)="applyFilter()"
+        class="ibm-input"
+      />
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="ibm-card">
+    <div class="table-responsive">
+      <table class="ibm-table">
+        <thead>
+          <tr>
+            <th>Código / NIT</th>
+            <th>Razón Social</th>
+            <th>Teléfono / Correo</th>
+            <th>Ubicación Geográfica</th>
+            <th>Contactos</th>
+            <th>Estado</th>
+            <th class="text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="isLoading()">
+            <td colspan="7" class="text-center py-4">Cargando proveedores...</td>
+          </tr>
+          <tr *ngIf="!isLoading() && filteredSuppliers().length === 0">
+            <td colspan="7" class="text-center py-4">No se encontraron proveedores registrados.</td>
+          </tr>
+          <tr *ngFor="let sup of filteredSuppliers()">
+            <td>
+              <span class="ibm-code-badge">{{ sup.code || 'N/A' }}</span>
+              <div class="text-xs text-muted">NIT: {{ sup.taxId }}</div>
+            </td>
+            <td>
+              <div class="font-medium text-white">{{ sup.name }}</div>
+              <div class="text-xs text-muted" *ngIf="sup.website">{{ sup.website }}</div>
+            </td>
+            <td>
+              <div>{{ sup.phone || 'Sin Teléfono' }}</div>
+              <div class="text-xs text-muted" *ngIf="sup.email">{{ sup.email }}</div>
+            </td>
+            <td>
+              <div>{{ sup.districtName || 'Distrito N/A' }}</div>
+              <div class="text-xs text-muted">{{ sup.departmentName }} - {{ sup.municipalityName }}</div>
+            </td>
+            <td>
+              <span class="ibm-badge ibm-badge-info">
+                {{ sup.contacts?.length || 0 }} Contactos
+              </span>
+            </td>
+            <td>
+              <span [class]="sup.isActive ? 'ibm-badge ibm-badge-success' : 'ibm-badge ibm-badge-danger'">
+                {{ sup.isActive ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td class="text-right actions-cell">
+              <button class="icon-btn edit-btn" title="Editar" (click)="openEditModal(sup)">
+                ✏️
+              </button>
+              <button
+                class="icon-btn status-btn"
+                [title]="sup.isActive ? 'Desactivar' : 'Activar'"
+                (click)="toggleStatus(sup)"
+              >
+                {{ sup.isActive ? '🚫' : '✅' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Create / Edit Supplier -->
+<div class="modal-backdrop" *ngIf="showModal()" (click)="closeModal()">
+  <div class="modal-container modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ isEditMode() ? 'Editar Proveedor' : 'Nuevo Proveedor' }}</h3>
+      <button class="close-btn" (click)="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group span-2">
+          <label>Razón Social / Nombre Empresa *</label>
+          <input type="text" [(ngModel)]="formName" placeholder="Ej: Distribuidora Industrial S.A. de C.V." class="ibm-input" />
+        </div>
+
+        <div class="form-group">
+          <label>NIT / Tax ID *</label>
+          <input type="text" [(ngModel)]="formTaxId" placeholder="0614-120990-102-1" class="ibm-input" />
+        </div>
+
+        <div class="form-group">
+          <label>Código de Proveedor</label>
+          <input type="text" [(ngModel)]="formCode" placeholder="PROV-001" class="ibm-input" />
+        </div>
+
+        <div class="form-group">
+          <label>Teléfono Principal</label>
+          <input type="text" [(ngModel)]="formPhone" placeholder="2200-1100" class="ibm-input" />
+        </div>
+
+        <div class="form-group">
+          <label>Correo Electrónico</label>
+          <input type="email" [(ngModel)]="formEmail" placeholder="contacto@empresa.com" class="ibm-input" />
+        </div>
+
+        <div class="form-group span-2">
+          <label>Sitio Web</label>
+          <input type="text" [(ngModel)]="formWebsite" placeholder="https://www.proveedor.com" class="ibm-input" />
+        </div>
+
+        <!-- Location Cascaded -->
+        <div class="form-group">
+          <label>Departamento *</label>
+          <select [ngModel]="selectedDepartmentId" (ngModelChange)="onDepartmentChange($event)" class="ibm-select">
+            <option value="">Seleccione Departamento</option>
+            <option *ngFor="let dep of departments()" [value]="dep.id">{{ dep.name }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Municipio *</label>
+          <select [ngModel]="selectedMunicipalityId" (ngModelChange)="onMunicipalityChange($event)" class="ibm-select" [disabled]="municipalities().length === 0">
+            <option value="">Seleccione Municipio</option>
+            <option *ngFor="let mun of municipalities()" [value]="mun.id">{{ mun.name }}</option>
+          </select>
+        </div>
+
+        <div class="form-group span-2">
+          <label>Distrito *</label>
+          <select [(ngModel)]="selectedDistrictId" class="ibm-select" [disabled]="districts().length === 0">
+            <option value="">Seleccione Distrito</option>
+            <option *ngFor="let dis of districts()" [value]="dis.id">{{ dis.name }}</option>
+          </select>
+        </div>
+
+        <div class="form-group span-2">
+          <label>Dirección Complementaria</label>
+          <input type="text" [(ngModel)]="formAddressComplement" placeholder="Calle principal #123, Zona industrial" class="ibm-input" />
+        </div>
+
+        <!-- Contactos Subform -->
+        <div class="form-group span-2">
+          <label class="font-semibold text-white">Contactos Comerciales / Representantes</label>
+          <div class="contacts-subform">
+            <div class="contact-inputs">
+              <input type="text" [(ngModel)]="newContactName" placeholder="Nombre Completo" class="ibm-input" />
+              <input type="text" [(ngModel)]="newContactPhone" placeholder="Teléfono" class="ibm-input" />
+              <input type="email" [(ngModel)]="newContactEmail" placeholder="Correo" class="ibm-input" />
+              <button class="ibm-btn ibm-btn-secondary" (click)="addContactToForm()">+ Agregar</button>
+            </div>
+            <div class="contacts-list mt-2" *ngIf="contacts().length > 0">
+              <div class="contact-chip" *ngFor="let c of contacts(); let i = index">
+                <span><strong>{{ c.fullName }}</strong> ({{ c.phone || 'Sin tel' }} - {{ c.email || 'Sin mail' }})</span>
+                <button (click)="removeContactFromForm(i)">✕</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="ibm-btn ibm-btn-secondary" (click)="closeModal()">Cancelar</button>
+      <button class="ibm-btn ibm-btn-primary" (click)="saveSupplier()">Guardar Proveedor</button>
+    </div>
+  </div>
+</div>

@@ -42,6 +42,9 @@ namespace SystemERP.IOC
             services.AddScoped<IBranchService, BranchService>();
             services.AddScoped<IWarehouseService, WarehouseService>();
             services.AddScoped<IInventoryService, InventoryService>();
+            services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<ISupplierService, SupplierService>();
+            services.AddScoped<ICustomerService, CustomerService>();
         }
     }
 }

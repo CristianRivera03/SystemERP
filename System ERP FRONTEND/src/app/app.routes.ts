@@ -20,20 +20,28 @@ export const routes: Routes = [
         loadComponent: () => import('./features/catalogs/catalogs-dashboard/catalogs-dashboard.component').then((m) => m.CatalogsDashboardComponent)
       },
       {
-        path: 'security/roles',
-        loadComponent: () => import('./features/security/role-management/role-management.component').then((m) => m.RoleManagementComponent)
+        path: 'dashboard',
+        loadComponent: () => import('./features/catalogs/catalogs-dashboard/catalogs-dashboard.component').then((m) => m.CatalogsDashboardComponent)
       },
       {
-        path: 'roles-permisos',
-        loadComponent: () => import('./features/security/role-management/role-management.component').then((m) => m.RoleManagementComponent)
+        path: 'gestion-usuarios',
+        loadComponent: () => import('./features/security/user-management/user-management.component').then((m) => m.UserManagementComponent)
       },
       {
         path: 'security/users',
         loadComponent: () => import('./features/security/user-management/user-management.component').then((m) => m.UserManagementComponent)
       },
       {
-        path: 'gestion-usuarios',
+        path: 'perfiles-empleados',
         loadComponent: () => import('./features/security/user-management/user-management.component').then((m) => m.UserManagementComponent)
+      },
+      {
+        path: 'roles-permisos',
+        loadComponent: () => import('./features/security/role-management/role-management.component').then((m) => m.RoleManagementComponent)
+      },
+      {
+        path: 'security/roles',
+        loadComponent: () => import('./features/security/role-management/role-management.component').then((m) => m.RoleManagementComponent)
       },
       {
         path: 'bitacora',
@@ -56,9 +64,64 @@ export const routes: Routes = [
         loadComponent: () => import('./features/inventory/inventory-dashboard/inventory-dashboard.component').then((m) => m.InventoryDashboardComponent)
       },
       {
-        path: 'dashboard',
-        loadComponent: () => import('./features/catalogs/catalogs-dashboard/catalogs-dashboard.component').then((m) => m.CatalogsDashboardComponent)
+        path: 'productos',
+        loadComponent: () => import('./features/products/products.component').then((m) => m.ProductsComponent)
       },
+      {
+        path: 'proveedores',
+        loadComponent: () => import('./features/suppliers/suppliers.component').then((m) => m.SuppliersComponent)
+      },
+      {
+        path: 'clientes',
+        loadComponent: () => import('./features/customers/customers.component').then((m) => m.CustomersComponent)
+      },
+
+      // Dedicated Under-Construction Module Components
+      {
+        path: 'ventas',
+        loadComponent: () => import('./features/sales/sales.component').then((m) => m.SalesComponent)
+      },
+      {
+        path: 'cotizaciones-ventas',
+        loadComponent: () => import('./features/sales/sales-quotes.component').then((m) => m.SalesQuotesComponent)
+      },
+      {
+        path: 'compras',
+        loadComponent: () => import('./features/purchases/purchases.component').then((m) => m.PurchasesComponent)
+      },
+      {
+        path: 'cotizaciones-compra',
+        loadComponent: () => import('./features/purchases/purchase-quotes.component').then((m) => m.PurchaseQuotesComponent)
+      },
+      {
+        path: 'ordenes-compra',
+        loadComponent: () => import('./features/purchases/purchase-orders.component').then((m) => m.PurchaseOrdersComponent)
+      },
+      {
+        path: 'retaceo',
+        loadComponent: () => import('./features/purchases/landed-cost.component').then((m) => m.LandedCostComponent)
+      },
+      {
+        path: 'asignacion-precios',
+        loadComponent: () => import('./features/inventory/price-assignment.component').then((m) => m.PriceAssignmentComponent)
+      },
+      {
+        path: 'traslados',
+        loadComponent: () => import('./features/inventory/stock-transfers.component').then((m) => m.StockTransfersComponent)
+      },
+      {
+        path: 'kardex',
+        loadComponent: () => import('./features/inventory/kardex.component').then((m) => m.KardexComponent)
+      },
+      {
+        path: 'devoluciones',
+        loadComponent: () => import('./features/returns/returns.component').then((m) => m.ReturnsComponent)
+      },
+      {
+        path: 'flota-conductores',
+        loadComponent: () => import('./features/logistics/fleet.component').then((m) => m.FleetComponent)
+      },
+
       {
         path: '',
         redirectTo: 'catalogs',
